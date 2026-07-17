@@ -1,4 +1,5 @@
 from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel, Field, field_validator
 
 app = FastAPI(
     title="Task API",
@@ -17,7 +18,17 @@ tasks = [
 ]
 
 next_id = 4  # tracks the next available id
+# ── Request models ────────────────────────────────────────────────────────────
 
+class TaskCreate(BaseModel):
+    title: str = Field(..., description="Text of the task", example="Buy milk")
+
+    @field_validator("title")
+    @classmethod
+    def title_must_not_be_empty(cls, v):
+        if not v.strip():
+            raise ValueError("title must not be empty or whitespace")
+        return v.strip()
 
 # ── Utility endpoints ─────────────────────────────────────────────────────────
 
@@ -52,3 +63,18 @@ def get_task(task_id: int):
         if task["id"] == task_id:
             return task
     raise HTTPException(status_code=404, detail=f"Task {task_id} not found")
+
+# ── Create endpoint ───────────────────────────────────────────────────────────
+
+@app.post("/tasks", status_code=201)
+def create_task(task: TaskCreate):
+    """Create a new task. Returns 201 with the created task."""
+    global next_id
+    new_task = {
+        "id": next_id,
+        "title": task.title,
+        "done": False
+    }
+    tasks.append(new_task)
+    next_id += 1
+    return new_task
