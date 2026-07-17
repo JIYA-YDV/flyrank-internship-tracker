@@ -13,3 +13,8 @@ def root():
         "version": "1.0",
         "endpoints": ["/tasks"]
     }
+
+@app.get("/health")
+def health():
+    """Health check — used by monitoring tools to confirm the server is alive."""
+    return {"status": "ok"}
