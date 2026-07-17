@@ -8,8 +8,6 @@ app = FastAPI(
 )
 
 # ── In-memory "database" ──────────────────────────────────────────────────────
-# A plain Python list. Fast, simple, and gone when the server stops.
-# That impermanence is intentional — it's the lesson Week 3 fixes with a database.
 
 tasks = [
     {"id": 1, "title": "Buy groceries", "done": False},
@@ -17,42 +15,8 @@ tasks = [
     {"id": 3, "title": "Push code to GitHub", "done": False},
 ]
 
-next_id = 4  # tracks the next available id
+next_id = 4
 
-
-# ── Utility endpoints ─────────────────────────────────────────────────────────
-
-@app.get("/")
-def root():
-    """API info."""
-    return {
-        "name": "Task API",
-        "version": "1.0",
-        "endpoints": ["/tasks"]
-    }
-
-
-@app.get("/health")
-def health():
-    """Health check — used by monitoring tools to confirm the server is alive."""
-    return {"status": "ok"}
-
-
-# ── Read endpoints ────────────────────────────────────────────────────────────
-
-@app.get("/tasks")
-def list_tasks():
-    """Return all tasks."""
-    return tasks
-
-
-@app.get("/tasks/{task_id}")
-def get_task(task_id: int):
-    """Return a single task by ID. Returns 404 if not found."""
-    for task in tasks:
-        if task["id"] == task_id:
-            return task
-    raise HTTPException(status_code=404, detail=f"Task {task_id} not found")
 
 # ── Request models ────────────────────────────────────────────────────────────
 
@@ -66,20 +30,6 @@ class TaskCreate(BaseModel):
             raise ValueError("title must not be empty or whitespace")
         return v.strip()
 
-# ── Create endpoint ───────────────────────────────────────────────────────────
-
-@app.post("/tasks", status_code=201)
-def create_task(task: TaskCreate):
-    """Create a new task. Returns 201 with the created task."""
-    global next_id
-    new_task = {
-        "id": next_id,
-        "title": task.title,
-        "done": False
-    }
-    tasks.append(new_task)
-    next_id += 1
-    return new_task
 
 class TaskUpdate(BaseModel):
     title: str | None = Field(None, description="New title for the task", example="Buy oat milk")
@@ -91,6 +41,55 @@ class TaskUpdate(BaseModel):
         if v is not None and not v.strip():
             raise ValueError("title must not be empty or whitespace")
         return v.strip() if v else v
+
+
+# ── Utility endpoints ─────────────────────────────────────────────────────────
+
+@app.get("/")
+def root():
+    """API info."""
+    return {"name": "Task API", "version": "1.0", "endpoints": ["/tasks"]}
+
+
+@app.get("/health")
+def health():
+    """Health check — used by monitoring tools to confirm the server is alive."""
+    return {"status": "ok"}
+
+
+# ── Read endpoints ────────────────────────────────────────────────────────────
+
+@app.get("/tasks")
+def list_tasks(done: bool | None = None, search: str | None = None):
+    """Return all tasks. Optionally filter by done status or search by title."""
+    result = tasks
+    if done is not None:
+        result = [t for t in result if t["done"] == done]
+    if search:
+        result = [t for t in result if search.lower() in t["title"].lower()]
+    return result
+
+
+@app.get("/tasks/{task_id}")
+def get_task(task_id: int):
+    """Return a single task by ID. Returns 404 if not found."""
+    for task in tasks:
+        if task["id"] == task_id:
+            return task
+    raise HTTPException(status_code=404, detail=f"Task {task_id} not found")
+
+
+# ── Create endpoint ───────────────────────────────────────────────────────────
+
+@app.post("/tasks", status_code=201)
+def create_task(task: TaskCreate):
+    """Create a new task. Returns 201 with the created task."""
+    global next_id
+    new_task = {"id": next_id, "title": task.title, "done": False}
+    tasks.append(new_task)
+    next_id += 1
+    return new_task
+
 
 # ── Update endpoint ───────────────────────────────────────────────────────────
 
@@ -120,7 +119,31 @@ def delete_task(task_id: int):
     for i, task in enumerate(tasks):
         if task["id"] == task_id:
             tasks.pop(i)
-            return  # 204 = empty body, return nothing
+            return
     raise HTTPException(status_code=404, detail=f"Task {task_id} not found")
 
-  
+
+# ── Stats endpoint (stretch) ──────────────────────────────────────────────────
+
+@app.get("/stats")
+def get_stats():
+    """Return task completion statistics."""
+    total = len(tasks)
+    done_count = sum(1 for t in tasks if t["done"])
+    return {"total": total, "done": done_count, "open": total - done_count}
+
+
+# ── Reset endpoint (stretch) ──────────────────────────────────────────────────
+
+@app.post("/reset", status_code=200)
+def reset_tasks():
+    """Restore the three seed tasks. Useful for demos."""
+    global tasks, next_id
+    tasks.clear()
+    tasks.extend([
+        {"id": 1, "title": "Buy groceries", "done": False},
+        {"id": 2, "title": "Read FastAPI docs", "done": True},
+        {"id": 3, "title": "Push code to GitHub", "done": False},
+    ])
+    next_id = 4
+    return {"message": "Tasks reset to seed data"}
