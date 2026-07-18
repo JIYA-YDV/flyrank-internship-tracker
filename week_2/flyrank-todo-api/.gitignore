@@ -1,4 +1,10 @@
+@"
 venv/
 __pycache__/
 *.pyc
 .env
+create.json
+empty.json
+update_done.json
+body.json
+"@ | Set-Content .gitignore
