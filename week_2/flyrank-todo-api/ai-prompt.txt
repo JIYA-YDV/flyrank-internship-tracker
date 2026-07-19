@@ -1,0 +1,28 @@
+Build a REST API using Python FastAPI
+Requirements:
+Language : Python
+
+Framework : FastAPI
+
+Endpoints: GET/-returns API, GET/health-confirms API is running, GET/tasks- list every tasks, Get/tasks/{id} - returns specific task, Post/tasks- add new task, PUT/tasks/{id}-update, 
+DELETE/tasks/{id}-remove tasks
+
+Request body for create: {"title": "Buy milk"}
+
+Request body for update : {"title": "Buy bread", "done": true}
+
+Task object should look like: 
+  {
+	"id":
+	"title":
+	"done":
+  }
+
+Status code that each point does: GET/-200 OK, GET/health-200 OK, GET/tasks/{id}- 200 OK, Get/tasks/{id} - 200 OK, Post/tasks- 201 created, PUT/tasks/{id}-200 OK, DELETE/tasks/{id}-204 No Content
+
+Status code on each type of failure: GET /tasks/{id}-404 Not Found, POST /tasks: 400 Bad Request, PUT /tasks/{id}: 400 Bad Request,PUT /tasks/{}:400, DELETE /tasks/{id}: 400 Bad Request, DELETE /tasks/{Unknown ID}: 404 Not found
+
+Validation rules: title must exist and title cannot be empty
+Store everything in an in-memory Python list. Do not use a database.
+
+Swagger UI needed
