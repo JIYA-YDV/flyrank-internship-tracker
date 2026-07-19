@@ -8,4 +8,10 @@ empty.json
 update_done.json
 update_full.json
 body.json
+ai-version/venv/
+ai-version/__pycache__/
+ai-version/create.json
+ai-version/empty.json
+ai-version/update_done.json
+ai-version/update_full.json
 "@ | Set-Content .gitignore
