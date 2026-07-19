@@ -6,5 +6,6 @@ __pycache__/
 create.json
 empty.json
 update_done.json
+update_full.json
 body.json
 "@ | Set-Content .gitignore
