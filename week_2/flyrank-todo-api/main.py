@@ -18,10 +18,24 @@ tasks = [
 next_id = 4
 
 
+# ── Response model ────────────────────────────────────────────────────────────
+
+class Task(BaseModel):
+    """Shape of a task object returned by the API."""
+    id: int
+    title: str
+    done: bool
+
+
 # ── Request models ────────────────────────────────────────────────────────────
 
 class TaskCreate(BaseModel):
-    title: str = Field(..., description="Text of the task", example="Buy milk")
+    """Payload for creating a new task."""
+    title: str = Field(
+        ...,
+        description="Text of the task",
+        examples=["Buy milk"]
+    )
 
     @field_validator("title")
     @classmethod
@@ -32,8 +46,17 @@ class TaskCreate(BaseModel):
 
 
 class TaskUpdate(BaseModel):
-    title: str | None = Field(None, description="New title for the task", example="Buy oat milk")
-    done: bool | None = Field(None, description="Mark task complete or incomplete", example=True)
+    """Payload for updating a task. Both fields optional — partial update."""
+    title: str | None = Field(
+        None,
+        description="New title for the task",
+        examples=["Buy oat milk"]
+    )
+    done: bool | None = Field(
+        None,
+        description="Mark task complete or incomplete",
+        examples=[True]
+    )
 
     @field_validator("title")
     @classmethod
@@ -59,7 +82,7 @@ def health():
 
 # ── Read endpoints ────────────────────────────────────────────────────────────
 
-@app.get("/tasks")
+@app.get("/tasks", response_model=list[Task])
 def list_tasks(done: bool | None = None, search: str | None = None):
     """Return all tasks. Optionally filter by done status or search by title."""
     result = tasks
@@ -70,7 +93,7 @@ def list_tasks(done: bool | None = None, search: str | None = None):
     return result
 
 
-@app.get("/tasks/{task_id}")
+@app.get("/tasks/{task_id}", response_model=Task)
 def get_task(task_id: int):
     """Return a single task by ID. Returns 404 if not found."""
     for task in tasks:
@@ -81,7 +104,7 @@ def get_task(task_id: int):
 
 # ── Create endpoint ───────────────────────────────────────────────────────────
 
-@app.post("/tasks", status_code=201)
+@app.post("/tasks", response_model=Task, status_code=201)
 def create_task(task: TaskCreate):
     """Create a new task. Returns 201 with the created task."""
     global next_id
@@ -93,7 +116,7 @@ def create_task(task: TaskCreate):
 
 # ── Update endpoint ───────────────────────────────────────────────────────────
 
-@app.put("/tasks/{task_id}")
+@app.put("/tasks/{task_id}", response_model=Task)
 def update_task(task_id: int, update: TaskUpdate):
     """Update title and/or done status. Returns 404 if not found, 400 if body is empty."""
     if update.title is None and update.done is None:
@@ -147,3 +170,5 @@ def reset_tasks():
     ])
     next_id = 4
     return {"message": "Tasks reset to seed data"}
+    
+    
