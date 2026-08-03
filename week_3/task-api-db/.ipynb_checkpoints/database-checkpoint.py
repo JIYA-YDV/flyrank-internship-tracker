@@ -48,3 +48,49 @@ def get_connection() -> sqlite3.Connection:
         conn.execute(sql)
         conn.commit()
     print("✅ Table 'tasks' is ready.")
+
+    def seed_tasks() -> None:
+    """
+    Inserts three starter tasks ONLY when the table is empty.
+
+    Why check COUNT(*)?
+    If we inserted without checking, restarting the server
+    would keep adding duplicates. COUNT(*) = 0 means the
+    database is brand new and needs starter data.
+
+    This ensures seeds run exactly once in the lifetime
+    of the database file.
+    """
+    with get_connection() as conn:
+        # Count how many rows already exist
+        cursor = conn.execute("SELECT COUNT(*) AS total FROM tasks")
+        row = cursor.fetchone()
+        count = row["total"]
+
+        # Only seed when the table is completely empty
+        if count == 0:
+            seed_data = [
+                ("Learn SQL fundamentals",           0),
+                ("Connect SQLite to a FastAPI server", 1),
+                ("Build an AI feature with Claude",  0),
+            ]
+            conn.executemany(
+                "INSERT INTO tasks (title, done) VALUES (?, ?)",
+                seed_data
+            )
+            conn.commit()
+            print(f"🌱 Seeded {len(seed_data)} example tasks.")
+        else:
+            print(f"📦 Database already has {count} task(s). Skipping seed.")
+
+
+def init_db() -> None:
+    """
+    Master initialization function called at application startup.
+    
+    Order matters:
+        1. Create the table first
+        2. Then seed — the table must exist before inserting rows
+    """
+    create_table()
+    seed_tasks()
