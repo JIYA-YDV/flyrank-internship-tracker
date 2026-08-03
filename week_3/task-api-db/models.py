@@ -54,3 +54,9 @@ class StatsResponse(BaseModel):
     total_tasks: int
     completed_tasks: int
     pending_tasks: int
+
+class StatsResponse(BaseModel):
+    """Schema for the GET /stats endpoint."""
+    total_tasks: int
+    completed_tasks: int
+    pending_tasks: int

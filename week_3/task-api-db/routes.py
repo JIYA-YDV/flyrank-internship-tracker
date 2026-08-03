@@ -1,21 +1,35 @@
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException, status, Query
+from typing import Optional
 
-from models import TaskCreate, TaskUpdate, TaskResponse
+from models import TaskCreate, TaskUpdate, TaskResponse, StatsResponse
 from crud import (
     db_get_all_tasks,
     db_get_task_by_id,
     db_create_task,
     db_update_task,
     db_delete_task,
+    db_get_stats,
 )
 
 router = APIRouter()
 
 
 @router.get("/tasks", response_model=list[TaskResponse])
-def get_tasks():
-    """Returns every task stored in the database."""
-    return db_get_all_tasks()
+def get_tasks(
+    search: Optional[str] = Query(None, description="Filter by keyword in the title"),
+    done: Optional[bool] = Query(None, description="Filter by completion status"),
+    sort_alpha: bool = Query(False, description="Sort alphabetically by title"),
+):
+    """
+    Returns every task, with optional filtering and sorting.
+
+    Examples:
+        GET /tasks
+        GET /tasks?search=sql
+        GET /tasks?done=false
+        GET /tasks?search=learn&sort_alpha=true
+    """
+    return db_get_all_tasks(search=search, done=done, sort_alpha=sort_alpha)
 
 
 @router.get("/tasks/{task_id}", response_model=TaskResponse)
@@ -55,3 +69,13 @@ def delete_task(task_id: int):
     if not deleted:
         raise HTTPException(status_code=404, detail="Task not found")
     return {"message": f"Task {task_id} deleted successfully"}
+
+@router.get("/stats", response_model=StatsResponse)
+def get_stats():
+    """
+    Returns task counts calculated with SQL COUNT(), not Python loops.
+
+    Response:
+        { "total_tasks": 5, "completed_tasks": 2, "pending_tasks": 3 }
+    """
+    return db_get_stats()
