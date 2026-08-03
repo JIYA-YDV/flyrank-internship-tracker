@@ -1,39 +1,41 @@
 import sqlite3
-from typing import Optional
+import os
 
-# Path to the SQLite database file
-DB_FILE = "tasks.db"
+# Absolute path to tasks.db, placed next to this file.
+# Using an absolute path means the database is found no matter
+# which folder you run uvicorn from.
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DB_FILE = os.path.join(BASE_DIR, "tasks.db")
 
 
 def get_connection() -> sqlite3.Connection:
     """
     Opens and returns a connection to the SQLite database.
-    
-    row_factory = sqlite3.Row allows us to access columns
-    by name like a dictionary instead of by index number.
-    
-    Example:
-        row["title"]  ✅  works like a dict
-        row[1]        ✅  also works like a tuple
+
+    row_factory = sqlite3.Row lets us access columns by name
+    instead of by index number.
+
+        row["title"]  -> works like a dictionary
+        row[1]        -> also still works like a tuple
     """
     conn = sqlite3.connect(DB_FILE)
     conn.row_factory = sqlite3.Row
     return conn
 
-    def create_table() -> None:
+
+def create_table() -> None:
     """
     Creates the tasks table if it does not already exist.
 
-    Schema:
-        id        — Auto-incrementing integer primary key
-        title     — Text description of the task (required)
-        done      — 0 = not done, 1 = done (SQLite has no boolean type)
-        created_at — Timestamp set automatically when row is inserted
-        updated_at — Timestamp updated every time the row changes
+    Columns:
+        id         - Auto-incrementing integer primary key
+        title      - Text description of the task (required)
+        done       - 0 = pending, 1 = complete (SQLite has no BOOLEAN type)
+        created_at - Timestamp set once when the row is inserted
+        updated_at - Timestamp refreshed every time the row changes
 
-    CREATE TABLE IF NOT EXISTS means this is safe to call
-    every time the application starts. If the table already
-    exists, SQLite simply does nothing.
+    "CREATE TABLE IF NOT EXISTS" makes this safe to run on every
+    startup. If the table already exists, SQLite does nothing.
     """
     sql = """
         CREATE TABLE IF NOT EXISTS tasks (
@@ -44,53 +46,54 @@ def get_connection() -> sqlite3.Connection:
             updated_at TEXT    DEFAULT (datetime('now'))
         )
     """
-    with get_connection() as conn:
+    conn = get_connection()
+    try:
         conn.execute(sql)
         conn.commit()
-    print("✅ Table 'tasks' is ready.")
+        print("Table 'tasks' is ready.")
+    finally:
+        conn.close()
 
-    def seed_tasks() -> None:
+
+def seed_tasks() -> None:
     """
     Inserts three starter tasks ONLY when the table is empty.
 
-    Why check COUNT(*)?
-    If we inserted without checking, restarting the server
-    would keep adding duplicates. COUNT(*) = 0 means the
-    database is brand new and needs starter data.
-
-    This ensures seeds run exactly once in the lifetime
-    of the database file.
+    Why check COUNT(*) first?
+    Without the check, every server restart would insert three
+    more duplicate rows. COUNT(*) = 0 means the database is
+    brand new, so seed data is needed exactly once.
     """
-    with get_connection() as conn:
-        # Count how many rows already exist
+    conn = get_connection()
+    try:
         cursor = conn.execute("SELECT COUNT(*) AS total FROM tasks")
-        row = cursor.fetchone()
-        count = row["total"]
+        count = cursor.fetchone()["total"]
 
-        # Only seed when the table is completely empty
         if count == 0:
             seed_data = [
-                ("Learn SQL fundamentals",           0),
+                ("Learn SQL fundamentals", 0),
                 ("Connect SQLite to a FastAPI server", 1),
-                ("Build an AI feature with Claude",  0),
+                ("Build an AI feature with Claude", 0),
             ]
             conn.executemany(
                 "INSERT INTO tasks (title, done) VALUES (?, ?)",
-                seed_data
+                seed_data,
             )
             conn.commit()
-            print(f"🌱 Seeded {len(seed_data)} example tasks.")
+            print(f"Seeded {len(seed_data)} example tasks.")
         else:
-            print(f"📦 Database already has {count} task(s). Skipping seed.")
+            print(f"Database already has {count} task(s). Skipping seed.")
+    finally:
+        conn.close()
 
 
 def init_db() -> None:
     """
-    Master initialization function called at application startup.
-    
+    Master startup function.
+
     Order matters:
-        1. Create the table first
-        2. Then seed — the table must exist before inserting rows
+        1. create_table() - the table must exist first
+        2. seed_tasks()   - only then can we insert rows
     """
     create_table()
     seed_tasks()
