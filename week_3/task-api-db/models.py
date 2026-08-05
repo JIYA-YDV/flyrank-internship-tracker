@@ -6,13 +6,10 @@ class TaskCreate(BaseModel):
     """
     Schema for creating a new task.
     
-    - title is required and cannot be an empty string
+    - title is required and checked for blanks in routes
     - done is optional and defaults to False
-    
-    Field(min_length=1) prevents someone from sending
-    {"title": ""} which would create a meaningless task.
     """
-    title: str = Field(..., min_length=1, description="Task description")
+    title: str = Field(..., description="Task description")
     done: Optional[bool] = Field(False, description="Completion status")
 
 
@@ -48,12 +45,6 @@ class TaskResponse(BaseModel):
 
     model_config = {"from_attributes": True}
 
-
-class StatsResponse(BaseModel):
-    """Schema for the /stats endpoint."""
-    total_tasks: int
-    completed_tasks: int
-    pending_tasks: int
 
 class StatsResponse(BaseModel):
     """Schema for the GET /stats endpoint."""

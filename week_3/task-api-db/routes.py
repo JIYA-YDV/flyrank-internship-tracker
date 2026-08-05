@@ -1,5 +1,6 @@
 from fastapi import APIRouter, HTTPException, status, Query
 from typing import Optional
+from pydantic import BaseModel
 
 from models import TaskCreate, TaskUpdate, TaskResponse, StatsResponse
 from crud import (
@@ -45,8 +46,15 @@ def get_task(task_id: int):
 def create_task(body: TaskCreate):
     """
     Creates a new task and returns it with status 201.
-    A missing or blank title is rejected with 400 by Pydantic.
+    A missing or blank title is rejected with 400.
     """
+    # Manually validate and raise 400 for missing or blank titles
+    if not body.title or body.title.strip() == "":
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Title is required"
+        )
+    
     return db_create_task(title=body.title, done=body.done)
 
 
@@ -69,6 +77,7 @@ def delete_task(task_id: int):
     if not deleted:
         raise HTTPException(status_code=404, detail="Task not found")
     return {"message": f"Task {task_id} deleted successfully"}
+
 
 @router.get("/stats", response_model=StatsResponse)
 def get_stats():
