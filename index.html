@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Jiya Yadav — FlyRank AI Internship Portfolio</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #fdf2f8 0%, #f0f4ff 100%);
+      color: #1a1a2e; min-height: 100vh;
+    }
+    .container { max-width: 1000px; margin: 0 auto; padding: 60px 24px; }
+    header { text-align: center; margin-bottom: 60px; }
+    .badge {
+      display: inline-block; background: #fbcfe8; color: #9d174d;
+      font-size: 13px; font-weight: 600;
+      padding: 6px 14px; border-radius: 100px; margin-bottom: 20px;
+    }
+    h1 { font-size: 48px; font-weight: 700; margin-bottom: 16px; }
+    .subtitle { font-size: 18px; color: #6b7280; max-width: 600px; margin: 0 auto; }
+    .section-title {
+      font-size: 14px; font-weight: 600; color: #9d174d;
+      text-transform: uppercase; letter-spacing: 1px;
+      margin: 40px 0 20px; text-align: center;
+    }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+    .card {
+      background: white; border-radius: 16px; padding: 28px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+      transition: transform .2s, box-shadow .2s;
+      text-decoration: none; color: inherit;
+      display: flex; flex-direction: column;
+    }
+    .card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 30px rgba(244,114,182,0.15);
+    }
+    .card-tag {
+      display: inline-block; background: #fdf2f8; color: #9d174d;
+      font-size: 11px; font-weight: 600;
+      padding: 4px 12px; border-radius: 100px;
+      margin-bottom: 12px; align-self: flex-start;
+    }
+    .card h3 { font-size: 18px; margin-bottom: 8px; }
+    .card p { color: #6b7280; font-size: 14px; margin-bottom: 20px; flex: 1; }
+    .card-cta { color: #f472b6; font-weight: 600; font-size: 14px; }
+    .coming-soon { opacity: 0.55; pointer-events: none; }
+    footer { text-align: center; margin-top: 60px; color: #6b7280; font-size: 14px; }
+    footer a { color: #f472b6; text-decoration: none; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="badge">FlyRank AI Internship · MSc. IT Student</div>
+      <h1>Jiya Yadav 💛</h1>
+      <p class="subtitle">
+        A collection of AI projects and weekly learnings from my FlyRank internship.
+        Focused on empathetic, safety-first AI for real-world problems.
+      </p>
+    </header>
+
+    <div class="section-title">🎓 Capstone Projects</div>
+    <div class="grid">
+      <a href="capstone-1-postpartum-ai/" class="card">
+        <span class="card-tag">Week 6 · General AI Fluency</span>
+        <h3>Postpartum AI Companion</h3>
+        <p>
+          A warm, 24/7 AI health companion supporting new mothers through 
+          postpartum recovery — physical, mental, and emotional.
+        </p>
+        <span class="card-cta">Explore Project →</span>
+      </a>
+      <div class="card coming-soon">
+        <span class="card-tag">Coming Soon</span>
+        <h3>Capstone 2</h3>
+        <p>Next capstone will appear here as I complete more internship weeks.</p>
+        <span class="card-cta">Coming Soon →</span>
+      </div>
+      <div class="card coming-soon">
+        <span class="card-tag">Coming Soon</span>
+        <h3>Capstone 3</h3>
+        <p>Next capstone will appear here as I complete more internship weeks.</p>
+        <span class="card-cta">Coming Soon →</span>
+      </div>
+    </div>
+
+    <div class="section-title">📅 Weekly Progress</div>
+    <div class="grid">
+      <a href="https://github.com/JIYA-YDV/flyrank-internship-tracker/tree/main/week_1" class="card">
+        <span class="card-tag">Week 1</span>
+        <h3>Foundation</h3>
+        <p>First week of AI internship — setup, learning, and initial exploration.</p>
+        <span class="card-cta">View on GitHub →</span>
+      </a>
+      <a href="https://github.com/JIYA-YDV/flyrank-internship-tracker/tree/main/week_2" class="card">
+        <span class="card-tag">Week 2</span>
+        <h3>Building Skills</h3>
+        <p>Deepening AI knowledge and hands-on practice with tools.</p>
+        <span class="card-cta">View on GitHub →</span>
+      </a>
+      <a href="https://github.com/JIYA-YDV/flyrank-internship-tracker/tree/main/week_3" class="card">
+        <span class="card-tag">Week 3</span>
+        <h3>Advanced Concepts</h3>
+        <p>Exploring more advanced AI topics and applications.</p>
+        <span class="card-cta">View on GitHub →</span>
+      </a>
+    </div>
+
+    <footer>
+      <p>Built by Jiya Yadav · <a href="https://github.com/JIYA-YDV/flyrank-internship-tracker">View Source on GitHub</a></p>
+    </footer>
+  </div>
+</body>
+</html>
