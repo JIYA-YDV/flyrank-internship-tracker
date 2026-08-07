@@ -1,5 +1,7 @@
-agent/.env
-agent/venv/
+.env
+**/.env
+venv/
+**/venv/
 __pycache__/
 *.pyc
 .chainlit/
