@@ -3,24 +3,116 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Postpartum AI Companion — Jiya</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+  <title>Postpartum AI Companion — Try It | Jiya</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono&display=swap" rel="stylesheet"/>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Inter', sans-serif; background: #fdf2f8;
-      display: flex; flex-direction: column; min-height: 100vh; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #fdf2f8 0%, #f0f4ff 100%);
+      color: #1a1a2e; min-height: 100vh;
+    }
     .top-bar {
-      background: white; padding: 16px 24px;
+      background: white; padding: 16px 32px;
       border-bottom: 1px solid #fbcfe8;
       display: flex; justify-content: space-between; align-items: center;
+      position: sticky; top: 0; z-index: 10;
     }
-    .top-bar a { color: #f472b6; font-size: 14px; }
+    .top-bar a { color: #f472b6; font-size: 14px; text-decoration: none; }
     .top-bar strong { color: #1a1a2e; }
+    
+    .container { max-width: 900px; margin: 0 auto; padding: 40px 24px; }
+    
+    .hero {
+      background: white; border-radius: 20px; padding: 40px;
+      box-shadow: 0 4px 30px rgba(244,114,182,0.1);
+      margin-bottom: 24px;
+    }
+    .badge {
+      display: inline-block; background: #fbcfe8; color: #9d174d;
+      font-size: 12px; font-weight: 600;
+      padding: 6px 14px; border-radius: 100px; margin-bottom: 16px;
+    }
+    h1 { font-size: 32px; margin-bottom: 12px; }
+    .lead { color: #6b7280; font-size: 16px; line-height: 1.6; }
+    
     .disclaimer {
       background: #fff7ed; border-left: 4px solid #f472b6;
-      padding: 12px 24px; font-size: 13px; color: #92400e;
+      padding: 16px 20px; border-radius: 8px;
+      font-size: 14px; color: #92400e; margin-top: 24px;
     }
-    .agent-frame { flex: 1; width: 100%; min-height: 80vh; border: none; }
+    .disclaimer strong { color: #7c2d12; }
+    
+    .demo-section {
+      background: white; border-radius: 20px; padding: 40px;
+      box-shadow: 0 4px 30px rgba(244,114,182,0.1);
+      margin-bottom: 24px;
+    }
+    .demo-section h2 {
+      font-size: 22px; margin-bottom: 16px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    
+    .video-placeholder {
+      background: linear-gradient(135deg, #fdf2f8, #fce7f3);
+      border-radius: 12px; padding: 60px 20px;
+      text-align: center; color: #9d174d;
+      border: 2px dashed #fbcfe8;
+    }
+    .video-placeholder .icon { font-size: 48px; margin-bottom: 12px; }
+    
+    .steps { counter-reset: step; }
+    .step {
+      display: flex; gap: 20px; margin-bottom: 24px;
+      padding: 20px; background: #fdf2f8; border-radius: 12px;
+    }
+    .step-num {
+      counter-increment: step;
+      background: #f472b6; color: white;
+      width: 32px; height: 32px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; flex-shrink: 0;
+    }
+    .step-num::before { content: counter(step); }
+    .step-content { flex: 1; }
+    .step-content h4 { margin-bottom: 8px; color: #1a1a2e; }
+    .step-content p { color: #6b7280; font-size: 14px; margin-bottom: 10px; }
+    
+    .code-block {
+      background: #1a1a2e; color: #f8fafc;
+      padding: 16px 20px; border-radius: 8px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px; overflow-x: auto;
+      white-space: pre;
+    }
+    .code-block .comment { color: #9ca3af; }
+    .code-block .cmd { color: #fbcfe8; }
+    
+    .features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px; margin-top: 20px;
+    }
+    .feature-chip {
+      background: #fdf2f8; color: #9d174d;
+      padding: 10px 14px; border-radius: 8px;
+      font-size: 13px; font-weight: 500;
+    }
+    
+    .cta-row {
+      display: flex; gap: 12px; flex-wrap: wrap;
+      margin-top: 24px;
+    }
+    .btn {
+      padding: 12px 24px; border-radius: 10px;
+      font-weight: 600; font-size: 14px;
+      text-decoration: none; display: inline-block;
+    }
+    .btn-primary { background: #f472b6; color: white; }
+    .btn-secondary {
+      background: white; color: #1a1a2e;
+      border: 1.5px solid #e5e7eb;
+    }
   </style>
 </head>
 <body>
@@ -28,16 +120,123 @@
     <strong>💛 Jiya — Postpartum AI Companion</strong>
     <a href="index.html">← Back to Portfolio</a>
   </div>
-  <div class="disclaimer">
-    ⚠️ This AI provides information and support only — not medical advice.
-    Always consult your doctor. For emergencies call 911.
-    Maternal Mental Health Hotline: <strong>1-833-943-5746</strong>
+  
+  <div class="container">
+    
+    <!-- Hero -->
+    <div class="hero">
+      <span class="badge">Python · Groq API · Chainlit</span>
+      <h1>Postpartum AI Companion</h1>
+      <p class="lead">
+        A warm, empathetic AI health assistant supporting new mothers 
+        through postpartum recovery — physically, mentally, and emotionally. 
+        Built with Python, powered by Llama 3.3 70B via Groq.
+      </p>
+      
+      <div class="features">
+        <div class="feature-chip">💛 Empathetic responses</div>
+        <div class="feature-chip">🛡️ Safety-first prompts</div>
+        <div class="feature-chip">🧠 Conversation memory</div>
+        <div class="feature-chip">🚨 Crisis referral protocols</div>
+        <div class="feature-chip">⚡ Streaming responses</div>
+        <div class="feature-chip">🌙 24/7 available</div>
+      </div>
+      
+      <div class="disclaimer">
+        ⚠️ <strong>Medical Disclaimer:</strong> This AI provides information and support only — not medical advice.
+        Always consult your doctor. For emergencies call 911.
+        <br/>Maternal Mental Health Hotline: <strong>1-833-943-5746</strong>
+      </div>
+    </div>
+
+    <!-- Demo -->
+    <div class="demo-section">
+      <h2>🎬 See It In Action</h2>
+      <p style="color:#6b7280; margin-bottom:20px;">
+        A quick demo of the agent responding to a new mother experiencing baby blues:
+      </p>
+      <div class="video-placeholder">
+        <div class="icon">🎥</div>
+        <strong>Demo video coming soon</strong>
+        <p style="font-size:13px; margin-top:8px;">
+          Record with Loom or OBS and embed here
+        </p>
+      </div>
+    </div>
+
+    <!-- Run Locally -->
+    <div class="demo-section">
+      <h2>🚀 Try It Yourself (Local Setup)</h2>
+      <p style="color:#6b7280; margin-bottom:24px;">
+        The agent runs locally with Python. Follow these steps to try it on your machine:
+      </p>
+      
+      <div class="steps">
+        <div class="step">
+          <div class="step-num"></div>
+          <div class="step-content">
+            <h4>Clone the repository</h4>
+            <p>Grab the source code from GitHub</p>
+            <div class="code-block"><span class="cmd">git clone https://github.com/JIYA-YDV/flyrank-internship-tracker.git
+cd flyrank-internship-tracker</span></div>
+          </div>
+        </div>
+        
+        <div class="step">
+          <div class="step-num"></div>
+          <div class="step-content">
+            <h4>Navigate to agent folder</h4>
+            <div class="code-block"><span class="cmd">cd "Capstone/General AI Fluency Impact Project/agent"</span></div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-num"></div>
+          <div class="step-content">
+            <h4>Create virtual environment & install dependencies</h4>
+            <div class="code-block"><span class="cmd">python -m venv venv
+.\venv\Scripts\Activate.ps1
+pip install -r requirements.txt</span></div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-num"></div>
+          <div class="step-content">
+            <h4>Get a FREE Groq API key</h4>
+            <p>Sign up at <a href="https://console.groq.com" style="color:#f472b6;">console.groq.com</a> — no credit card needed. Create a key and copy it.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-num"></div>
+          <div class="step-content">
+            <h4>Create .env file with your key</h4>
+            <div class="code-block"><span class="comment"># In agent/ folder, create .env:</span>
+<span class="cmd">GROQ_API_KEY=gsk_your_key_here</span></div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-num"></div>
+          <div class="step-content">
+            <h4>Run the agent</h4>
+            <div class="code-block"><span class="cmd">chainlit run app.py -w</span></div>
+            <p style="margin-top:10px;">Opens at <strong>http://localhost:8000</strong> — start chatting! 💛</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="cta-row">
+        <a href="https://github.com/JIYA-YDV/flyrank-internship-tracker/tree/main/Capstone/General%20AI%20Fluency%20Impact%20Project/agent" class="btn btn-primary">
+          View Source Code →
+        </a>
+        <a href="index.html" class="btn btn-secondary">
+          ← Back to Project Overview
+        </a>
+      </div>
+    </div>
+
   </div>
-  <!-- Replace URL below with your deployed Chainlit URL -->
-  <iframe
-    src="http://localhost:8000"
-    class="agent-frame"
-    title="Postpartum AI Companion">
-  </iframe>
 </body>
 </html>
