@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Postpartum AI Companion — Jiya</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', sans-serif; background: #fdf2f8;
+      display: flex; flex-direction: column; min-height: 100vh; }
+    .top-bar {
+      background: white; padding: 16px 24px;
+      border-bottom: 1px solid #fbcfe8;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .top-bar a { color: #f472b6; font-size: 14px; }
+    .top-bar strong { color: #1a1a2e; }
+    .disclaimer {
+      background: #fff7ed; border-left: 4px solid #f472b6;
+      padding: 12px 24px; font-size: 13px; color: #92400e;
+    }
+    .agent-frame { flex: 1; width: 100%; min-height: 80vh; border: none; }
+  </style>
+</head>
+<body>
+  <div class="top-bar">
+    <strong>💛 Jiya — Postpartum AI Companion</strong>
+    <a href="index.html">← Back to Portfolio</a>
+  </div>
+  <div class="disclaimer">
+    ⚠️ This AI provides information and support only — not medical advice.
+    Always consult your doctor. For emergencies call 911.
+    Maternal Mental Health Hotline: <strong>1-833-943-5746</strong>
+  </div>
+  <!-- Replace URL below with your deployed Chainlit URL -->
+  <iframe
+    src="http://localhost:8000"
+    class="agent-frame"
+    title="Postpartum AI Companion">
+  </iframe>
+</body>
+</html>
