@@ -1,82 +1,70 @@
-import chainlit as cl
-from groq import AsyncGroq
-from dotenv import load_dotenv
+import gradio as gr
+from groq import Groq
 from prompts import SYSTEM_PROMPT
 import os
+from dotenv import load_dotenv
 
-# Load environment variables
+# Load env
 load_dotenv()
 
-# Init Groq client (free, fast)
-client = AsyncGroq(api_key=os.getenv("GROQ_API_KEY"))
+# Init Groq client
+client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
-# Model config — Llama 3.3 70B is excellent for empathetic conversation
 MODEL = "llama-3.3-70b-versatile"
 MAX_TOKENS = 1000
 TEMPERATURE = 0.7
 
+# Store conversation history per session
+conversations = {}
 
-@cl.on_chat_start
-async def start():
-    """Initialize conversation with message history."""
+def respond(message, history, session_id):
+    """Handle chat messages with memory"""
+    # Initialize session history if new
+    if session_id not in conversations:
+        conversations[session_id] = [
+            {"role": "system", "content": SYSTEM_PROMPT}
+        ]
 
-    # Store conversation history in session
-    cl.user_session.set("history", [
-        {"role": "system", "content": SYSTEM_PROMPT}
-    ])
+    # Add user message
+    conversations[session_id].append({"role": "user", "content": message})
 
-    # Welcome message
-    await cl.Message(
-        content=(
-            "Hi there 💛 I'm Jiya — your postpartum support companion.\n\n"
-            "Whether you're a new mom, a partner, or just someone looking "
-            "for information about postpartum health — I'm here for you.\n\n"
-            "**How are you doing today?** What's on your mind?"
-        )
-    ).send()
-
-
-@cl.on_message
-async def main(message: cl.Message):
-    """Handle incoming messages."""
-
-    # Get conversation history
-    history = cl.user_session.get("history")
-
-    # Add user message to history
-    history.append({
-        "role": "user",
-        "content": message.content
-    })
-
-    # Create streaming response placeholder
-    response_message = cl.Message(content="")
-    await response_message.send()
-
-    full_response = ""
-
-    # Stream response from Groq
-    stream = await client.chat.completions.create(
+    # Get response from Groq
+    response = client.chat.completions.create(
         model=MODEL,
-        messages=history,
+        messages=conversations[session_id],
         max_tokens=MAX_TOKENS,
-        temperature=TEMPERATURE,
-        stream=True
+        temperature=TEMPERATURE
     )
 
-    async for chunk in stream:
-        delta = chunk.choices[0].delta.content
-        if delta:
-            full_response += delta
-            await response_message.stream_token(delta)
+    # Extract assistant response
+    assistant_message = response.choices[0].message.content
 
-    await response_message.update()
+    # Add to history
+    conversations[session_id].append({"role": "assistant", "content": assistant_message})
 
-    # Add assistant response to history
-    history.append({
-        "role": "assistant",
-        "content": full_response
-    })
+    return assistant_message
 
-    # Save updated history
-    cl.user_session.set("history", history)
+# Create the chatbot interface
+chatbot = gr.ChatInterface(
+    fn=respond,
+    chatbot=gr.Chatbot(height=500),
+    textbox=gr.Textbox(
+        placeholder="How are you feeling today?",
+        label="Talk to Jiya"
+    ),
+    title="💛 Jiya - Postpartum AI Companion",
+    description=(
+        "A warm, empathetic AI health companion supporting new mothers through postpartum recovery. "
+        "**Always consult your doctor for medical advice.**"
+    ),
+    examples=[
+        ["I had my baby 2 weeks ago and I'm feeling really sad and I don't know why"],
+        ["Is it normal to feel overwhelmed with a newborn?"],
+        ["How can I tell if I have postpartum depression?"],
+    ],
+    theme="soft",
+    cache_examples=True,
+)
+
+# Launch with custom CSS
+chatbot.launch(server_name="0.0.0.0", server_port=7860)
