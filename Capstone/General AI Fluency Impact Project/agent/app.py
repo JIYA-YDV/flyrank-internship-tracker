@@ -4,7 +4,7 @@ from prompts import SYSTEM_PROMPT
 import os
 from dotenv import load_dotenv
 
-# Load env
+# Load env (works locally + HF secrets on cloud)
 load_dotenv()
 
 # Init Groq client
@@ -14,57 +14,58 @@ MODEL = "llama-3.3-70b-versatile"
 MAX_TOKENS = 1000
 TEMPERATURE = 0.7
 
-# Store conversation history per session
-conversations = {}
 
-def respond(message, history, session_id):
-    """Handle chat messages with memory"""
-    # Initialize session history if new
-    if session_id not in conversations:
-        conversations[session_id] = [
-            {"role": "system", "content": SYSTEM_PROMPT}
-        ]
+def respond(message, history):
+    """
+    Handle chat messages with conversation memory.
+    `history` is provided by Gradio in OpenAI message format.
+    """
+    # Build message list: system prompt + conversation history + new message
+    messages = [{"role": "system", "content": SYSTEM_PROMPT}]
 
-    # Add user message
-    conversations[session_id].append({"role": "user", "content": message})
+    # Add previous conversation
+    for msg in history:
+        messages.append({"role": msg["role"], "content": msg["content"]})
 
-    # Get response from Groq
-    response = client.chat.completions.create(
+    # Add current user message
+    messages.append({"role": "user", "content": message})
+
+    # Stream response from Groq
+    stream = client.chat.completions.create(
         model=MODEL,
-        messages=conversations[session_id],
+        messages=messages,
         max_tokens=MAX_TOKENS,
-        temperature=TEMPERATURE
+        temperature=TEMPERATURE,
+        stream=True
     )
 
-    # Extract assistant response
-    assistant_message = response.choices[0].message.content
+    # Yield tokens as they arrive (streaming effect)
+    partial_response = ""
+    for chunk in stream:
+        delta = chunk.choices[0].delta.content
+        if delta:
+            partial_response += delta
+            yield partial_response
 
-    # Add to history
-    conversations[session_id].append({"role": "assistant", "content": assistant_message})
 
-    return assistant_message
-
-# Create the chatbot interface
-chatbot = gr.ChatInterface(
+# Build the Chat interface (Gradio 6.x compatible)
+demo = gr.ChatInterface(
     fn=respond,
-    chatbot=gr.Chatbot(height=500),
-    textbox=gr.Textbox(
-        placeholder="How are you feeling today?",
-        label="Talk to Jiya"
-    ),
-    title="ðŸ’› Jiya - Postpartum AI Companion",
+    type="messages",
+    title="?? Jiya — Postpartum AI Companion",
     description=(
         "A warm, empathetic AI health companion supporting new mothers through postpartum recovery. "
-        "**Always consult your doctor for medical advice.**"
+        "**Always consult your doctor for medical advice.** "
+        "In emergencies call 911. Maternal Mental Health Hotline: 1-833-943-5746."
     ),
     examples=[
-        ["I had my baby 2 weeks ago and I'm feeling really sad and I don't know why"],
-        ["Is it normal to feel overwhelmed with a newborn?"],
-        ["How can I tell if I have postpartum depression?"],
+        "I had my baby 2 weeks ago and I'm feeling really sad and I don't know why",
+        "Is it normal to feel overwhelmed with a newborn?",
+        "How can I tell if I have postpartum depression?",
+        "I'm having trouble breastfeeding — what should I do?",
     ],
-    theme="soft",
-    cache_examples=True,
 )
 
-# Launch with custom CSS
-chatbot.launch(server_name="0.0.0.0", server_port=7860)
+
+if __name__ == "__main__":
+    demo.launch(server_name="0.0.0.0", server_port=7860)
