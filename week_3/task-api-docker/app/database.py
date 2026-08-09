@@ -1,99 +1,91 @@
-import sqlite3
+# app/database.py
+"""
+Database connection module — Postgres version.
+
+This file is the ONLY file that knows we switched from SQLite to Postgres.
+Everything above this layer (crud.py, routes.py, models.py) is unchanged.
+That is the architecture working correctly.
+"""
+
 import os
+import psycopg2
+import psycopg2.extras
+from dotenv import load_dotenv
 
-# Absolute path to tasks.db, placed next to this file.
-# Using an absolute path means the database is found no matter
-# which folder you run uvicorn from.
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DB_FILE = os.path.join(BASE_DIR, "tasks.db")
+# Load variables from .env file into os.environ
+# This must run before we try to read any environment variables
+load_dotenv()
 
 
-def get_connection() -> sqlite3.Connection:
+def get_connection():
     """
-    Opens and returns a connection to the SQLite database.
+    Open and return a connection to the Postgres database.
 
-    row_factory = sqlite3.Row lets us access columns by name
-    instead of by index number.
+    Reads DATABASE_URL from environment variables (loaded from .env).
 
-        row["title"]  -> works like a dictionary
-        row[1]        -> also still works like a tuple
+    Uses RealDictCursor so that rows come back as Python dictionaries.
+    This is the same behaviour as SQLite's row_factory = sqlite3.Row.
+    The rest of the code accesses rows as row["column_name"] either way.
+
+    Returns:
+        psycopg2 connection object
+
+    Raises:
+        RuntimeError: if DATABASE_URL is not set
+        Exception: if Postgres cannot be reached
     """
-    conn = sqlite3.connect(DB_FILE)
-    conn.row_factory = sqlite3.Row
-    return conn
+    database_url = os.getenv("DATABASE_URL")
 
-
-def create_table() -> None:
-    """
-    Creates the tasks table if it does not already exist.
-
-    Columns:
-        id         - Auto-incrementing integer primary key
-        title      - Text description of the task (required)
-        done       - 0 = pending, 1 = complete (SQLite has no BOOLEAN type)
-        created_at - Timestamp set once when the row is inserted
-        updated_at - Timestamp refreshed every time the row changes
-
-    "CREATE TABLE IF NOT EXISTS" makes this safe to run on every
-    startup. If the table already exists, SQLite does nothing.
-    """
-    sql = """
-        CREATE TABLE IF NOT EXISTS tasks (
-            id         INTEGER PRIMARY KEY AUTOINCREMENT,
-            title      TEXT    NOT NULL,
-            done       INTEGER NOT NULL DEFAULT 0,
-            created_at TEXT    DEFAULT (datetime('now')),
-            updated_at TEXT    DEFAULT (datetime('now'))
+    if not database_url:
+        raise RuntimeError(
+            "DATABASE_URL environment variable is not set.\n"
+            "Make sure .env file exists with DATABASE_URL defined.\n"
+            "See .env.example for the format."
         )
+
+    connection = psycopg2.connect(
+        database_url,
+        cursor_factory=psycopg2.extras.RealDictCursor
+    )
+
+    return connection
+
+
+def init_db():
     """
-    conn = get_connection()
+    Called once at app startup to verify the database connection.
+
+    In the SQLite version, this function created the table.
+    In the Postgres version, the table is created by sql/init.sql
+    which runs automatically when the Postgres Docker container
+    starts for the first time.
+
+    This function just confirms the connection is working.
+    If it cannot connect, the app refuses to start (fail fast).
+
+    Raises:
+        RuntimeError: if the database cannot be reached
+    """
     try:
-        conn.execute(sql)
-        conn.commit()
-        print("Table 'tasks' is ready.")
-    finally:
+        conn = get_connection()
+        cursor = conn.cursor()
+
+        # Simple query to verify the connection works
+        cursor.execute("SELECT 1")
+
+        # Also verify our table exists
+        cursor.execute(
+            "SELECT COUNT(*) as count FROM tasks"
+        )
+        result = cursor.fetchone()
+
         conn.close()
+        print("✅ Postgres connection verified")
+        print(f"✅ Tasks table found with {result['count']} rows")
 
-
-def seed_tasks() -> None:
-    """
-    Inserts three starter tasks ONLY when the table is empty.
-
-    Why check COUNT(*) first?
-    Without the check, every server restart would insert three
-    more duplicate rows. COUNT(*) = 0 means the database is
-    brand new, so seed data is needed exactly once.
-    """
-    conn = get_connection()
-    try:
-        cursor = conn.execute("SELECT COUNT(*) AS total FROM tasks")
-        count = cursor.fetchone()["total"]
-
-        if count == 0:
-            seed_data = [
-                ("Learn SQL fundamentals", 0),
-                ("Connect SQLite to a FastAPI server", 1),
-                ("Build an AI feature with Claude", 0),
-            ]
-            conn.executemany(
-                "INSERT INTO tasks (title, done) VALUES (?, ?)",
-                seed_data,
-            )
-            conn.commit()
-            print(f"Seeded {len(seed_data)} example tasks.")
-        else:
-            print(f"Database already has {count} task(s). Skipping seed.")
-    finally:
-        conn.close()
-
-
-def init_db() -> None:
-    """
-    Master startup function.
-
-    Order matters:
-        1. create_table() - the table must exist first
-        2. seed_tasks()   - only then can we insert rows
-    """
-    create_table()
-    seed_tasks()
+    except Exception as error:
+        raise RuntimeError(
+            f"Cannot connect to Postgres database.\n"
+            f"Error: {error}\n"
+            f"Make sure Docker is running and docker compose up was used."
+        )
