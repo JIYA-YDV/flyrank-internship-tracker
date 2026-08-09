@@ -2,18 +2,15 @@
 """
 Database connection module — Postgres version.
 
-This file is the ONLY file that knows we switched from SQLite to Postgres.
-Everything above this layer (crud.py, routes.py, models.py) is unchanged.
-That is the architecture working correctly.
+Includes retry logic for startup timing issues in Docker.
 """
 
 import os
+import time
 import psycopg2
 import psycopg2.extras
 from dotenv import load_dotenv
 
-# Load variables from .env file into os.environ
-# This must run before we try to read any environment variables
 load_dotenv()
 
 
@@ -22,17 +19,13 @@ def get_connection():
     Open and return a connection to the Postgres database.
 
     Reads DATABASE_URL from environment variables (loaded from .env).
-
-    Uses RealDictCursor so that rows come back as Python dictionaries.
-    This is the same behaviour as SQLite's row_factory = sqlite3.Row.
-    The rest of the code accesses rows as row["column_name"] either way.
+    Uses RealDictCursor so rows come back as Python dictionaries.
 
     Returns:
         psycopg2 connection object
 
     Raises:
         RuntimeError: if DATABASE_URL is not set
-        Exception: if Postgres cannot be reached
     """
     database_url = os.getenv("DATABASE_URL")
 
@@ -55,37 +48,45 @@ def init_db():
     """
     Called once at app startup to verify the database connection.
 
-    In the SQLite version, this function created the table.
-    In the Postgres version, the table is created by sql/init.sql
-    which runs automatically when the Postgres Docker container
-    starts for the first time.
-
-    This function just confirms the connection is working.
-    If it cannot connect, the app refuses to start (fail fast).
+    Retries up to 5 times with a 2-second wait between attempts.
+    This handles the case where the app starts slightly before
+    Postgres is fully ready to accept connections.
 
     Raises:
-        RuntimeError: if the database cannot be reached
+        RuntimeError: if all retry attempts fail
     """
-    try:
-        conn = get_connection()
-        cursor = conn.cursor()
+    max_retries = 5
+    wait_seconds = 2
 
-        # Simple query to verify the connection works
-        cursor.execute("SELECT 1")
+    for attempt in range(1, max_retries + 1):
+        try:
+            print(f"⏳ Connecting to Postgres... (attempt {attempt}/{max_retries})")
 
-        # Also verify our table exists
-        cursor.execute(
-            "SELECT COUNT(*) as count FROM tasks"
-        )
-        result = cursor.fetchone()
+            conn = get_connection()
+            cursor = conn.cursor()
 
-        conn.close()
-        print("✅ Postgres connection verified")
-        print(f"✅ Tasks table found with {result['count']} rows")
+            # Verify connection works
+            cursor.execute("SELECT 1")
 
-    except Exception as error:
-        raise RuntimeError(
-            f"Cannot connect to Postgres database.\n"
-            f"Error: {error}\n"
-            f"Make sure Docker is running and docker compose up was used."
-        )
+            # Verify our table exists and count rows
+            cursor.execute("SELECT COUNT(*) as count FROM tasks")
+            result = cursor.fetchone()
+
+            conn.close()
+
+            print("✅ Postgres connection verified")
+            print(f"✅ Tasks table found with {result['count']} rows")
+            return  # success — exit the function
+
+        except Exception as error:
+            print(f"❌ Attempt {attempt} failed: {error}")
+
+            if attempt < max_retries:
+                print(f"⏳ Waiting {wait_seconds} seconds before retry...")
+                time.sleep(wait_seconds)
+            else:
+                raise RuntimeError(
+                    f"Cannot connect to Postgres after {max_retries} attempts.\n"
+                    f"Last error: {error}\n"
+                    f"Make sure docker compose up is running."
+                )

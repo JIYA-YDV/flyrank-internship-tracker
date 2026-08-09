@@ -1,84 +1,66 @@
 # docker-compose.yml
-# ─────────────────────────────────────────────────────────────────
-# Defines the full stack: Postgres database + FastAPI app
-# Run everything with: docker compose up --build
-# Stop everything with: docker compose down
-# ─────────────────────────────────────────────────────────────────
 
-version: "5.1.1"
+version: "3.9"
 
 services:
 
-  # ── Postgres Database Container ──────────────────────────────────
+  # ── Postgres Database ─────────────────────────────────────────────
   db:
-    # Use official Postgres 16 image (alpine = smaller size)
     image: postgres:16-alpine
-
-    # Name the container so it is easy to find in Docker Desktop
     container_name: task_postgres
-
-    # Restart automatically if it crashes (not on manual stop)
     restart: unless-stopped
 
-    # Load environment variables from .env file
-    # This is how Postgres knows what username/password to set up
     env_file:
       - .env
 
-    # Map port 5432 inside container to port 5432 on your machine
-    # Format is "host_port:container_port"
-    # This lets you connect with database tools like TablePlus or pgAdmin
     ports:
-      - "5432:5432"
+      # Changed from 5432:5432 to 5433:5432
+      # Because Windows local Postgres is already using 5432
+      # The app still connects on port 5432 INSIDE Docker network
+      - "5433:5432"
 
-    # Volumes — where data is stored
     volumes:
-      # Named volume: Docker manages this folder outside the container
-      # This is why data survives docker compose down
       - postgres_data:/var/lib/postgresql/data
-
-      # Mount our SQL file into the special init folder
-      # Postgres runs all .sql files in this folder on first start only
       - ./sql/init.sql:/docker-entrypoint-initdb.d/init.sql
 
-    # Health check — Docker checks if Postgres is actually ready
-    # The app will not start until this check passes
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
-      interval: 5s      # check every 5 seconds
-      timeout: 5s       # give up after 5 seconds each check
-      retries: 5        # mark unhealthy after 5 failures
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
 
-  # ── FastAPI App Container ─────────────────────────────────────────
+    networks:
+      - task_network
+
+  # ── FastAPI App ───────────────────────────────────────────────────
   app:
-    # Build from our Dockerfile (the . means "current folder")
     build: .
-
     container_name: task_api
+    restart: on-failure
 
-    restart: unless-stopped
-
-    # Same .env file
     env_file:
       - .env
 
-    # Map port 8000 inside container to port 8000 on your machine
     ports:
       - "8000:8000"
 
-    # Mount your local app/ folder into the container
-    # This means code changes appear inside container without rebuilding
     volumes:
       - ./app:/code/app
 
-    # CRITICAL: do not start app until database is healthy
-    # Without this, the app might start before Postgres is ready and crash
     depends_on:
       db:
         condition: service_healthy
 
-# ── Named Volumes ───────────────────────────────────────────────────
-# Declare the named volume used above
-# Docker creates and manages this — it lives outside any container
+    networks:
+      - task_network
+
+# ── Named Volumes ─────────────────────────────────────────────────────
 volumes:
   postgres_data:
+
+# ── Networks ──────────────────────────────────────────────────────────
+# Explicit network so both containers can always find each other by name
+networks:
+  task_network:
+    driver: bridge
