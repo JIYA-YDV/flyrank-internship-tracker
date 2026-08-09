@@ -1,0 +1,29 @@
+# .gitignore
+
+# Environment variables — NEVER commit real secrets
+.env
+
+# Python cache files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual environment folders
+venv/
+.venv/
+env/
+
+# Database files
+*.db
+*.sqlite3
+
+# IDE folders
+.vscode/
+.idea/
+
+# Mac system files
+.DS_Store
+
+# Docker
+.docker/
