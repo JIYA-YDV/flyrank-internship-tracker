@@ -1,53 +1,41 @@
-from pydantic import BaseModel, Field
+# app/models.py
+"""
+Pydantic models for request validation and response shaping.
+
+Updated for Postgres:
+  - created_at / updated_at are now `datetime` (Postgres returns real timestamps)
+  - done is now a real `bool` (Postgres has a native BOOLEAN type)
+"""
+
+from datetime import datetime
 from typing import Optional
+
+from pydantic import BaseModel, Field
 
 
 class TaskCreate(BaseModel):
-    """
-    Schema for creating a new task.
-    
-    - title is required and checked for blanks in routes
-    - done is optional and defaults to False
-    """
-    title: str = Field(..., description="Task description")
-    done: Optional[bool] = Field(False, description="Completion status")
+    """Validates the body of POST /tasks"""
+    title: str = Field(..., min_length=1, description="Task title, cannot be empty")
+    done: bool = Field(default=False, description="Completion status")
 
 
 class TaskUpdate(BaseModel):
-    """
-    Schema for updating an existing task.
-    
-    All fields are Optional — a client may update just the
-    title, just the done flag, or both at the same time.
-    
-    If a field is None it means 'no change requested'.
-    """
-    title: Optional[str] = Field(None, min_length=1, description="New task title")
-    done: Optional[bool] = Field(None, description="New completion status")
+    """Validates the body of PUT /tasks/{id} — all fields optional"""
+    title: Optional[str] = Field(default=None, min_length=1)
+    done: Optional[bool] = Field(default=None)
 
 
 class TaskResponse(BaseModel):
-    """
-    Schema for data returned to the client.
-    
-    The client always receives id, title, and done.
-    Timestamps are included as bonus information.
-    
-    Note: SQLite stores booleans as integers (0 or 1).
-    Pydantic automatically converts them to True/False
-    when building a TaskResponse from a dict.
-    """
+    """Shapes every task returned to the client"""
     id: int
     title: str
     done: bool
-    created_at: Optional[str] = None
-    updated_at: Optional[str] = None
-
-    model_config = {"from_attributes": True}
+    created_at: datetime     # ← was str in the SQLite version
+    updated_at: datetime     # ← was str in the SQLite version
 
 
 class StatsResponse(BaseModel):
-    """Schema for the GET /stats endpoint."""
-    total_tasks: int
-    completed_tasks: int
-    pending_tasks: int
+    """Shapes the GET /tasks/stats response"""
+    total: int
+    completed: int
+    pending: int

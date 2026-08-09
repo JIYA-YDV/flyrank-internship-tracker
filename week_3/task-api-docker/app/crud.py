@@ -245,17 +245,15 @@ def db_delete_task(task_id: int):
 
 # ── STATS ─────────────────────────────────────────────────────────────
 
-
 def db_get_stats():
     """
     Return aggregate statistics about all tasks.
 
-    Uses SQL aggregation — no Python counting loops needed.
-    CASE WHEN done THEN 1 ELSE 0 END is standard SQL that works
-    in both SQLite and Postgres.
-
-    Returns:
-        dict with keys: total, completed, pending
+    Postgres notes:
+      - COUNT() returns int, but SUM() returns Decimal
+      - SUM() returns NULL when the table is empty
+      - COALESCE(..., 0) turns NULL into 0
+      - int() casts Decimal to a plain Python int for Pydantic
     """
     conn = get_connection()
     cursor = conn.cursor()
@@ -263,9 +261,9 @@ def db_get_stats():
     cursor.execute(
         """
         SELECT
-            COUNT(*)                                    AS total,
-            SUM(CASE WHEN done = true  THEN 1 ELSE 0 END) AS completed,
-            SUM(CASE WHEN done = false THEN 1 ELSE 0 END) AS pending
+            COUNT(*)                                                  AS total,
+            COALESCE(SUM(CASE WHEN done = true  THEN 1 ELSE 0 END), 0) AS completed,
+            COALESCE(SUM(CASE WHEN done = false THEN 1 ELSE 0 END), 0) AS pending
         FROM tasks
         """
     )
@@ -273,4 +271,8 @@ def db_get_stats():
     row = cursor.fetchone()
     conn.close()
 
-    return dict(row)
+    return {
+        "total":     int(row["total"]),
+        "completed": int(row["completed"]),
+        "pending":   int(row["pending"]),
+    }
