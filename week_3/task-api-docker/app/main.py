@@ -1,37 +1,36 @@
-from fastapi import FastAPI
-from contextlib import asynccontextmanager
+# app/main.py
+"""
+Application entry point — unchanged except import paths.
 
-from database import init_db
-from routes import router
+The lifespan function, route registration, and health check
+are identical to the A2 SQLite version.
+Only the import paths changed from 'database' to 'app.database'
+because files are now inside the app/ package.
+"""
+
+from contextlib import asynccontextmanager
+from fastapi import FastAPI
+
+from app.database import init_db
+from app.routes import router
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """
-    Lifespan context manager — runs once when the server starts.
-
-    This is the modern FastAPI way to run startup code.
-    
-    What happens at startup:
-        1. create_table() — creates tasks table if missing
-        2. seed_tasks()   — inserts 3 tasks if table is empty
-
-    The `yield` separates startup from shutdown code.
-    Code after yield runs when the server shuts down.
+    Runs on startup and shutdown.
+    init_db() verifies the Postgres connection is working.
+    If it fails, the app refuses to start.
     """
-    print("🚀 Starting Task API...")
     init_db()
     yield
-    print("🛑 Server shutting down.")
+    # Code after yield runs on shutdown (nothing needed here)
 
 
 app = FastAPI(
-    title="Task Management API",
-    description=(
-        "A RESTful CRUD API backed by SQLite. "
-        "Built for Week 3 of the FlyRank AI Backend Engineering track."
-    ),
-    version="2.0.0",
+    title="Task API",
+    description="Task management API backed by Postgres running in Docker",
+    version="3.0.0",
     lifespan=lifespan,
 )
 
@@ -40,13 +39,11 @@ app.include_router(router)
 
 
 @app.get("/")
-def root():
-    """
-    Health check — confirms the server is running.
-    Visit http://localhost:8000/docs for interactive API docs.
-    """
+def health_check():
+    """Simple health check to confirm the API is running."""
     return {
-        "status": "running",
-        "message": "Task API with SQLite persistence is live ✅",
-        "docs": "http://localhost:8000/docs"
+        "status":   "running",
+        "database": "postgres",
+        "storage":  "docker volume",
+        "version":  "3.0.0",
     }

@@ -2,8 +2,9 @@ from fastapi import APIRouter, HTTPException, status, Query
 from typing import Optional
 from pydantic import BaseModel
 
-from models import TaskCreate, TaskUpdate, TaskResponse, StatsResponse
-from crud import (
+# NEW (A3 style — package imports)
+from app.models import TaskCreate, TaskUpdate, TaskResponse, StatsResponse
+from app.crud import (
     db_get_all_tasks,
     db_get_task_by_id,
     db_create_task,
