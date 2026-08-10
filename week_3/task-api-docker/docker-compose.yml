@@ -33,6 +33,21 @@ services:
     networks:
       - task_network
 
+  # ── Redis Cache Container ─────────────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    container_name: task_redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    networks:
+      - task_network
+
   # ── FastAPI App ───────────────────────────────────────────────────
   app:
     build: .
@@ -50,6 +65,8 @@ services:
 
     depends_on:
       db:
+        condition: service_healthy
+      redis:
         condition: service_healthy
 
     networks:
