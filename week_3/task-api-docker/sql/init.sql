@@ -21,3 +21,9 @@ INSERT INTO tasks (title, done) VALUES
     ('Learn Docker basics',             false),
     ('Connect Postgres to FastAPI',     false),
     ('Prove data persists on restart',  false);
+-- Enable trigram extension for fast ILIKE searches
+CREATE EXTENSION IF NOT EXISTS pg_trgm;
+
+-- Index for case-insensitive title search
+CREATE INDEX IF NOT EXISTS idx_tasks_title_trgm
+    ON tasks USING GIN (title gin_trgm_ops);

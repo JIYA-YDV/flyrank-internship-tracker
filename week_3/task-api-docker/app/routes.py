@@ -62,3 +62,27 @@ def delete_task(task_id: int):
         raise HTTPException(status_code=404, detail="Task not found")
     return {"message": f"Task {task_id} deleted successfully"}
     return {"message": f"Task {task_id} deleted successfully"}
+
+@router.post("/tasks/seed-bulk")
+def seed_bulk():
+    """Insert 10,000 fake tasks to make EXPLAIN ANALYZE meaningful."""
+    from app.database import get_connection
+
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        INSERT INTO tasks (title, done)
+        SELECT
+            'Task number ' || generate_series,
+            (random() > 0.5)
+        FROM generate_series(1, 10000);
+    """)
+
+    conn.commit()
+
+    cursor.execute("SELECT COUNT(*) as count FROM tasks")
+    total = cursor.fetchone()["count"]
+    conn.close()
+
+    return {"message": "Bulk seed complete", "total_tasks": total}
