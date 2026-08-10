@@ -255,6 +255,39 @@ commit 01 — project: initialize structure and copy A2 files
 
 ---
 
+---
+
+## Screenshots / Evidence
+
+### Docker Stack Running
+
+![Docker stack running](screenshots/01-docker-containers-running.png)
+
+### API Health Check
+
+![Health check](screenshots/02-api-health-check.png)
+
+### Swagger API Documentation
+
+![Swagger documentation](screenshots/03-swagger-api-docs.png)
+
+### Persistence Before Restart
+
+![Persistence before restart](screenshots/05-persistence-before-restart.png)
+
+### Persistence After Restart
+
+![Persistence after restart](screenshots/06-persistence-after-restart.png)
+
+# After Redis and index stretches
+### Redis Ping
+
+![Redis ping](screenshots/07-redis-ping.png)
+
+### EXPLAIN ANALYZE — Before-After Index
+
+![Before index](screenshots/08-explain-before-after_index.png)
+
 ## Author
 Jiya Yadav
 Built as part of the FlyRank AI Backend Engineering Internship, Week 3.
