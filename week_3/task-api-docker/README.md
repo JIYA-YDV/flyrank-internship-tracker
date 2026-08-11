@@ -44,6 +44,7 @@ task-api-docker/
 ├── docker-compose.yml   ← runs app + database together
 ├── requirements.txt
 ├── DOCUMENTATION.md     ← full technical documentation
+└── screenshots/         
 └── README.md
 ```
 
