@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jiya Yadav — Identity Kit</title>
+<link rel="icon" href="jiya-logo.png">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #0A0A0F;
+    --card: #12121A;
+    --border: #1F1F2E;
+    --text: #E5E7EB;
+    --muted: #6B7280;
+    --purple: #A855F7;
+    --blue: #3B82F6;
+    --cyan: #06B6D4;
+    --orange: #F59E0B;
+  }
+
+  html { -webkit-text-size-adjust: 100%; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    background-image: 
+      radial-gradient(circle at 15% 20%, rgba(168, 85, 247, 0.12), transparent 40%),
+      radial-gradient(circle at 85% 80%, rgba(6, 182, 212, 0.10), transparent 40%);
+    padding: 24px;
+    overflow-x: hidden;
+  }
+
+  .container { max-width: 1280px; margin: 0 auto; }
+
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .brand {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 500;
+    font-size: 18px;
+    color: var(--purple);
+  }
+  .brand span { color: var(--text); }
+  .tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--muted);
+    word-break: break-word;
+  }
+  .tag b { color: var(--cyan); font-weight: 500; }
+
+  .hero {
+    text-align: center;
+    padding: 40px 20px 32px;
+  }
+  .hero .kicker {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: var(--cyan);
+    margin-bottom: 12px;
+  }
+  .hero h1 {
+    font-weight: 700;
+    font-size: clamp(32px, 6vw, 64px);
+    letter-spacing: -1.5px;
+    line-height: 1.1;
+    margin-bottom: 12px;
+  }
+  .hero h1 .gradient {
+    background: linear-gradient(135deg, var(--purple), var(--blue));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .hero .sub {
+    color: var(--muted);
+    font-size: 15px;
+    max-width: 560px;
+    margin: 0 auto;
+    line-height: 1.6;
+  }
+  .hero .portfolio-link {
+    display: inline-block;
+    margin-top: 16px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: var(--cyan);
+    text-decoration: none;
+    border: 1px solid var(--cyan);
+    padding: 8px 16px;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    word-break: break-word;
+  }
+  .hero .portfolio-link:hover {
+    background: rgba(6, 182, 212, 0.1);
+    transform: translateY(-2px);
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: 1.3fr 1fr 1fr;
+    gap: 16px;
+    margin-top: 24px;
+  }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 24px;
+    transition: transform 0.3s ease, border-color 0.3s ease;
+  }
+  .card:hover {
+    transform: translateY(-3px);
+    border-color: var(--purple);
+  }
+  .label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--cyan);
+    margin-bottom: 10px;
+  }
+  .card h2 {
+    font-weight: 700;
+    font-size: 20px;
+    margin-bottom: 16px;
+  }
+
+  .logo-card {
+    grid-row: span 2;
+    display: flex;
+    flex-direction: column;
+    padding: 28px;
+    background: linear-gradient(160deg, var(--card), var(--bg));
+  }
+  .logo-wrap {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 24px 0;
+    position: relative;
+    min-height: 200px;
+    overflow: hidden;
+  }
+  .logo-wrap::before {
+    content: '';
+    position: absolute;
+    width: 260px; height: 260px;
+    background: radial-gradient(circle, rgba(168, 85, 247, 0.25), transparent 70%);
+    max-width: 100%;
+  }
+  .logo-wrap img {
+    max-height: 200px;
+    max-width: 100%;
+    height: auto;
+    position: relative;
+    z-index: 1;
+    filter: drop-shadow(0 0 25px rgba(168, 85, 247, 0.4));
+  }
+  .logo-footer {
+    display: flex;
+    justify-content: space-between;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .logo-footer b { color: var(--orange); }
+
+  .font-item {
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .font-item:last-child { border-bottom: none; }
+  .font-preview {
+    font-weight: 700;
+    font-size: 22px;
+    letter-spacing: -0.5px;
+    margin-bottom: 4px;
+    word-break: break-word;
+  }
+  .font-code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 16px;
+    color: var(--cyan);
+    margin-bottom: 4px;
+    word-break: break-word;
+  }
+  .font-meta {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  .palette {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .swatch {
+    padding: 12px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    transition: transform 0.2s ease;
+    cursor: pointer;
+  }
+  .swatch:hover { transform: scale(1.04); }
+  .swatch-color {
+    height: 46px;
+    border-radius: 6px;
+    margin-bottom: 8px;
+    border: 1px solid rgba(255,255,255,0.05);
+  }
+  .swatch-name { font-weight: 600; font-size: 12px; }
+  .swatch-hex {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  .style-note {
+    grid-column: span 3;
+    background: linear-gradient(135deg, rgba(168, 85, 247, 0.08), rgba(6, 182, 212, 0.08));
+    border: 1px solid var(--purple);
+  }
+  .style-note p {
+    font-size: 15px;
+    line-height: 1.7;
+  }
+  .style-note strong { color: var(--purple); font-weight: 600; }
+  .style-note .cyan { color: var(--cyan); font-weight: 600; }
+  .style-note .orange { color: var(--orange); font-weight: 600; }
+
+  .footer {
+    text-align: center;
+    margin-top: 24px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--muted);
+    word-break: break-word;
+  }
+  .footer b { color: var(--cyan); }
+
+  /* ============ TABLET ============ */
+  @media (max-width: 900px) {
+    .grid { grid-template-columns: 1fr 1fr; }
+    .logo-card { grid-row: span 1; grid-column: span 2; }
+    .style-note { grid-column: span 2; }
+    .logo-wrap { min-height: 220px; }
+    .logo-wrap img { max-height: 180px; }
+  }
+
+  /* ============ MOBILE ============ */
+  @media (max-width: 640px) {
+    body { padding: 16px; }
+    .header { flex-direction: column; align-items: flex-start; }
+    .hero { padding: 28px 8px 24px; }
+    .hero h1 { font-size: clamp(28px, 8vw, 44px); letter-spacing: -1px; }
+    .hero .sub { font-size: 14px; }
+    .hero .portfolio-link { font-size: 12px; padding: 8px 12px; }
+
+    .grid { grid-template-columns: 1fr; gap: 14px; margin-top: 20px; }
+    .logo-card, .style-note { grid-column: span 1; grid-row: auto; }
+
+    .card { padding: 20px; border-radius: 12px; }
+    .card h2 { font-size: 18px; margin-bottom: 12px; }
+
+    .logo-wrap { min-height: 200px; padding: 16px 0; }
+    .logo-wrap img { max-height: 170px; }
+    .logo-wrap::before { width: 200px; height: 200px; }
+
+    .font-preview { font-size: 20px; }
+    .swatch-color { height: 40px; }
+    .swatch-name { font-size: 11px; }
+
+    .style-note p { font-size: 14px; line-height: 1.65; }
+  }
+
+  /* ============ VERY SMALL PHONES ============ */
+  @media (max-width: 380px) {
+    .palette { grid-template-columns: 1fr; }
+    .hero h1 { font-size: 26px; }
+  }
+</style>
+</head>
+<body>
+  <div class="container">
+
+    <div class="header">
+      <div class="brand">jiya<span>.dev</span></div>
+      <div class="tag">// week_3 · <b>identity_kit</b> · flyrank_ai</div>
+    </div>
+
+    <div class="hero">
+      <div class="kicker">// visual_foundation</div>
+      <h1>My <span class="gradient">Identity Kit</span></h1>
+      <p class="sub">The same fonts, colors, and mood powering jiya.dev — documented once, applied everywhere. Built in Week 1, locked in Week 3.</p>
+      <a class="portfolio-link" href="https://jiya-ydv.github.io/jiya-yadav.github.io/" target="_blank">→ see it live at jiya.dev</a>
+    </div>
+
+    <div class="grid">
+
+      <div class="card logo-card">
+        <div class="label">// logo</div>
+        <h2>JY Monogram</h2>
+        <div class="logo-wrap">
+          <img src="jiya-logo.png" alt="Jiya Yadav Logo">
+        </div>
+        <div class="logo-footer">
+          <span>monogram · <b>JY</b></span>
+          <span>2026</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="label">// typography</div>
+        <h2>Fonts</h2>
+        <div class="font-item">
+          <div class="font-preview">Inter Bold</div>
+          <div class="font-meta">HEADINGS · 700</div>
+        </div>
+        <div class="font-item">
+          <div class="font-preview" style="font-weight:400;font-size:16px;">Inter Regular — body copy</div>
+          <div class="font-meta">BODY · 400</div>
+        </div>
+        <div class="font-item">
+          <div class="font-code">JetBrains_Mono</div>
+          <div class="font-meta">CODE / LABELS · 500</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="label">// palette</div>
+        <h2>Colors</h2>
+        <div class="palette">
+          <div class="swatch">
+            <div class="swatch-color" style="background:#0A0A0F;"></div>
+            <div class="swatch-name">Background</div>
+            <div class="swatch-hex">#0A0A0F</div>
+          </div>
+          <div class="swatch">
+            <div class="swatch-color" style="background:#E5E7EB;"></div>
+            <div class="swatch-name">Text</div>
+            <div class="swatch-hex">#E5E7EB</div>
+          </div>
+          <div class="swatch">
+            <div class="swatch-color" style="background:#A855F7;"></div>
+            <div class="swatch-name">Primary</div>
+            <div class="swatch-hex">#A855F7</div>
+          </div>
+          <div class="swatch">
+            <div class="swatch-color" style="background:#06B6D4;"></div>
+            <div class="swatch-name">Accent</div>
+            <div class="swatch-hex">#06B6D4</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card style-note">
+        <div class="label">// style_note</div>
+        <p>
+          <strong>Fonts:</strong> Inter for headings & body, JetBrains Mono for code and labels. 
+          <span class="cyan">Colors:</span> #0A0A0F background · #E5E7EB text · #A855F7 primary · #06B6D4 accent.
+          <br><span class="orange">Mood:</span> a dark developer-native aesthetic — clean typography, glowing gradients, terminal-style annotations. Quiet enough to let engineered work take the spotlight.
+        </p>
+      </div>
+
+    </div>
+
+    <div class="footer">
+      // built_for <b>flyrank_ai_fluency</b> · foundations_phase · week_3
+    </div>
+
+  </div>
+</body>
+</html>
