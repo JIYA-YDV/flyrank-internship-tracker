@@ -1,0 +1,1165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Jiya Yadav | AI/ML Engineer</title>
+
+  <!-- Favicon (JY logo) -->
+  <link rel="icon" type="image/png" href="assets/images/brand/jiya-logo.png">
+  <link rel="apple-touch-icon" href="assets/images/brand/jiya-logo.png">
+
+  <!-- Open Graph / Social Share -->
+  <meta property="og:title" content="Jiya Yadav — AI/ML Engineer">
+  <meta property="og:description" content="Building end-to-end production ML systems. 0.89 macro F1 · 74% test coverage · MSc IT (AI/ML).">
+  <meta property="og:image" content="assets/images/brand/og-share.png">
+  <meta property="og:url" content="https://jiya-ydv.github.io/jiya-yadav.github.io/">
+  <meta property="og:type" content="website">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Jiya Yadav — AI/ML Engineer">
+  <meta name="twitter:description" content="Building end-to-end production ML systems.">
+  <meta name="twitter:image" content="assets/images/brand/og-share.png">
+
+  <!-- Fonts: Inter + JetBrains Mono (per identity kit) -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+
+  <style>
+    /* ── RESET & BASE ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #0a0a0f;
+      --bg2:       #111118;
+      --bg3:       #1a1a24;
+      --border:    #2a2a3a;
+      --accent:    #7c3aed;
+      --accent2:   #06b6d4;
+      --accent3:   #f59e0b;
+      --text:      #e2e8f0;
+      --muted:     #94a3b8;
+      --card:      #16161f;
+      --glow:      rgba(124,58,237,0.15);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      overflow-x: hidden;
+    }
+
+    /* ── SCROLLBAR ── */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 3px; }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      background: rgba(10,10,15,0.85);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 2rem;
+      height: 64px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+
+    .nav-logo {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1.1rem;
+      color: var(--accent);
+      font-weight: 500;
+      letter-spacing: 0.05em;
+    }
+
+    .nav-logo span { color: var(--accent2); }
+
+    .nav-links {
+      display: flex; gap: 2rem; list-style: none;
+    }
+
+    .nav-links a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.875rem;
+      font-weight: 500;
+      transition: color 0.2s;
+      letter-spacing: 0.03em;
+    }
+
+    .nav-links a:hover { color: var(--text); }
+
+    .nav-cta {
+      background: var(--accent);
+      color: #fff !important;
+      padding: 0.45rem 1.1rem;
+      border-radius: 6px;
+      transition: background 0.2s, transform 0.2s !important;
+    }
+
+    .nav-cta:hover { background: #6d28d9 !important; transform: translateY(-1px); }
+
+    /* hamburger */
+    .hamburger { display: none; flex-direction: column; gap: 5px; cursor: pointer; }
+    .hamburger span { width: 24px; height: 2px; background: var(--text); border-radius: 2px; transition: 0.3s; }
+
+    /* ── HERO ── */
+    .hero {
+      min-height: 100vh;
+      display: flex; align-items: center; justify-content: center;
+      padding: 6rem 2rem 4rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute; inset: 0;
+      background-image:
+        linear-gradient(rgba(124,58,237,0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(124,58,237,0.05) 1px, transparent 1px);
+      background-size: 60px 60px;
+      animation: gridMove 20s linear infinite;
+    }
+
+    @keyframes gridMove {
+      0%   { transform: translateY(0); }
+      100% { transform: translateY(60px); }
+    }
+
+    .hero::after {
+      content: '';
+      position: absolute;
+      width: 600px; height: 600px;
+      background: radial-gradient(circle, rgba(124,58,237,0.12) 0%, transparent 70%);
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+    }
+
+    .hero-content {
+      position: relative; z-index: 1;
+      text-align: center;
+      max-width: 800px;
+    }
+
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      background: rgba(124,58,237,0.1);
+      border: 1px solid rgba(124,58,237,0.3);
+      border-radius: 999px;
+      padding: 0.4rem 1rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      color: var(--accent2);
+      margin-bottom: 1.5rem;
+      animation: fadeDown 0.6s ease both;
+    }
+
+    .status-dot {
+      width: 8px; height: 8px;
+      background: #22c55e;
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50%       { opacity: 0.5; transform: scale(1.3); }
+    }
+
+    .hero h1 {
+      font-size: clamp(2.8rem, 7vw, 5rem);
+      font-weight: 800;
+      line-height: 1.1;
+      letter-spacing: -0.03em;
+      margin-bottom: 1rem;
+      animation: fadeDown 0.6s 0.1s ease both;
+    }
+
+    .hero h1 .gradient {
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero-role {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: clamp(1rem, 2.5vw, 1.25rem);
+      color: var(--accent3);
+      margin-bottom: 1.5rem;
+      animation: fadeDown 0.6s 0.2s ease both;
+    }
+
+    .hero-summary {
+      color: var(--muted);
+      font-size: 1.05rem;
+      max-width: 640px;
+      margin: 0 auto 2.5rem;
+      animation: fadeDown 0.6s 0.3s ease both;
+    }
+
+    .hero-btns {
+      display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;
+      animation: fadeDown 0.6s 0.4s ease both;
+    }
+
+    .btn {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      padding: 0.75rem 1.75rem;
+      border-radius: 8px;
+      font-weight: 600; font-size: 0.9rem;
+      text-decoration: none;
+      transition: all 0.2s;
+      cursor: pointer; border: none;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent), #6d28d9);
+      color: #fff;
+      box-shadow: 0 0 24px rgba(124,58,237,0.3);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0 36px rgba(124,58,237,0.5);
+    }
+
+    .btn-outline {
+      background: transparent;
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    .btn-outline:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      transform: translateY(-2px);
+    }
+
+    .btn-sm {
+      padding: 0.5rem 1rem;
+      font-size: 0.8rem;
+      font-weight: 500;
+    }
+
+    .hero-secondary {
+      display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap;
+      margin-top: 1rem;
+      animation: fadeDown 0.6s 0.45s ease both;
+    }
+
+    .hero-stats {
+      display: flex; gap: 2.5rem; justify-content: center; flex-wrap: wrap;
+      margin-top: 3.5rem;
+      animation: fadeDown 0.6s 0.5s ease both;
+    }
+
+    .stat { text-align: center; }
+    .stat-num {
+      font-size: 1.8rem; font-weight: 800;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .stat-label { font-size: 0.75rem; color: var(--muted); margin-top: 0.2rem; }
+
+    @keyframes fadeDown {
+      from { opacity: 0; transform: translateY(-16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── SECTIONS ── */
+    section { padding: 6rem 2rem; }
+    .container { max-width: 1100px; margin: 0 auto; }
+
+    .section-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      color: var(--accent2);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      margin-bottom: 0.75rem;
+    }
+
+    .section-title {
+      font-size: clamp(1.8rem, 4vw, 2.5rem);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 1rem;
+    }
+
+    .section-title span {
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .section-desc { color: var(--muted); max-width: 560px; }
+
+    /* ── PROJECTS ── */
+    #projects { background: var(--bg2); }
+
+    .projects-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 1.5rem;
+      margin-top: 3rem;
+    }
+
+    .project-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1.75rem;
+      display: flex; flex-direction: column;
+      transition: border-color 0.3s, transform 0.3s, box-shadow 0.3s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* NEW: Project images */
+    .project-image {
+      width: calc(100% + 3.5rem);
+      margin: -1.75rem -1.75rem 1.5rem -1.75rem;
+      height: 200px;
+      object-fit: cover;
+      object-position: top;
+      border-bottom: 1px solid var(--border);
+      transition: transform 0.4s ease, opacity 0.3s ease;
+    }
+
+    .project-card:hover .project-image {
+      transform: scale(1.03);
+      opacity: 0.95;
+    }
+
+    .project-card.featured .project-image {
+      height: 340px;
+    }
+
+    .project-card::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.3s;
+      z-index: 2;
+    }
+
+    .project-card:hover::before { transform: scaleX(1); }
+
+    .project-card:hover {
+      border-color: rgba(124,58,237,0.4);
+      transform: translateY(-6px);
+      box-shadow: 0 16px 40px rgba(124,58,237,0.1);
+    }
+
+    .project-card.featured {
+      grid-column: 1 / -1;
+      border-color: rgba(124,58,237,0.3);
+      background: linear-gradient(135deg, var(--card), rgba(124,58,237,0.04));
+    }
+
+    .project-featured-badge {
+      display: inline-flex; align-items: center; gap: 0.35rem;
+      font-size: 0.7rem; font-weight: 600;
+      color: var(--accent3);
+      background: rgba(245,158,11,0.1);
+      border: 1px solid rgba(245,158,11,0.3);
+      border-radius: 999px;
+      padding: 0.25rem 0.65rem;
+      margin-bottom: 1rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      align-self: flex-start;
+    }
+
+    .project-title {
+      font-size: 1.15rem; font-weight: 700;
+      margin-bottom: 0.75rem;
+      color: var(--text);
+    }
+
+    .project-desc {
+      color: var(--muted); font-size: 0.875rem;
+      flex: 1; margin-bottom: 1.25rem;
+      line-height: 1.65;
+    }
+
+    .project-highlights {
+      list-style: none; margin-bottom: 1.25rem;
+    }
+
+    .project-highlights li {
+      font-size: 0.82rem; color: var(--muted);
+      padding: 0.3rem 0;
+      padding-left: 1.25rem;
+      position: relative;
+    }
+
+    .project-highlights li::before {
+      content: '▸';
+      position: absolute; left: 0;
+      color: var(--accent2);
+    }
+
+    .project-highlights li strong { color: var(--text); }
+
+    .project-stack {
+      display: flex; flex-wrap: wrap; gap: 0.4rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .stack-tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      padding: 0.25rem 0.55rem;
+      border-radius: 4px;
+      background: rgba(124,58,237,0.08);
+      border: 1px solid rgba(124,58,237,0.2);
+      color: var(--accent);
+    }
+
+    .project-links {
+      display: flex; gap: 0.75rem; flex-wrap: wrap;
+    }
+
+    .project-link {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      font-size: 0.8rem; font-weight: 600;
+      text-decoration: none;
+      padding: 0.45rem 0.9rem;
+      border-radius: 6px;
+      transition: all 0.2s;
+    }
+
+    .project-link.primary {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .project-link.primary:hover {
+      background: #6d28d9;
+      transform: translateY(-1px);
+    }
+
+    .project-link.secondary {
+      border: 1px solid var(--border);
+      color: var(--muted);
+    }
+
+    .project-link.secondary:hover {
+      border-color: var(--accent2);
+      color: var(--accent2);
+    }
+
+    .project-note {
+      font-size: 0.75rem;
+      color: var(--muted);
+      font-style: italic;
+      margin-top: 0.5rem;
+      opacity: 0.8;
+    }
+
+    /* ── EXPERIENCE ── */
+    #experience { background: var(--bg); }
+
+    .timeline {
+      margin-top: 3rem;
+      position: relative;
+    }
+
+    .timeline::before {
+      content: '';
+      position: absolute; left: 20px; top: 0; bottom: 0;
+      width: 2px;
+      background: linear-gradient(to bottom, var(--accent), var(--accent2), transparent);
+    }
+
+    .timeline-item {
+      padding-left: 3.5rem;
+      margin-bottom: 2.5rem;
+      position: relative;
+    }
+
+    .timeline-dot {
+      position: absolute; left: 12px; top: 4px;
+      width: 18px; height: 18px;
+      border-radius: 50%;
+      background: var(--accent);
+      border: 3px solid var(--bg);
+      box-shadow: 0 0 12px rgba(124,58,237,0.4);
+    }
+
+    .timeline-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      transition: border-color 0.3s;
+    }
+
+    .timeline-card:hover { border-color: rgba(124,58,237,0.4); }
+
+    .timeline-header {
+      display: flex; justify-content: space-between; align-items: flex-start;
+      flex-wrap: wrap; gap: 0.5rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .timeline-title { font-weight: 700; font-size: 1rem; }
+
+    .timeline-period {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--accent2);
+      background: rgba(6,182,212,0.08);
+      border: 1px solid rgba(6,182,212,0.2);
+      padding: 0.2rem 0.6rem;
+      border-radius: 4px;
+    }
+
+    .timeline-company {
+      color: var(--accent3); font-size: 0.85rem; font-weight: 500;
+      margin-bottom: 0.75rem;
+    }
+
+    .timeline-desc { color: var(--muted); font-size: 0.875rem; }
+
+    .timeline-desc ul {
+      list-style: none;
+      margin-top: 0.5rem;
+    }
+
+    .timeline-desc ul li {
+      padding: 0.2rem 0;
+      padding-left: 1.25rem;
+      position: relative;
+      font-size: 0.85rem;
+    }
+
+    .timeline-desc ul li::before {
+      content: '▸';
+      position: absolute; left: 0;
+      color: var(--accent2);
+    }
+
+    /* ── EDUCATION ── */
+    #education { background: var(--bg2); }
+
+    .edu-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.5rem;
+      margin-top: 3rem;
+    }
+
+    .edu-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      transition: all 0.3s;
+    }
+
+    .edu-card:hover {
+      border-color: rgba(124,58,237,0.4);
+      transform: translateY(-4px);
+    }
+
+    .edu-degree {
+      font-weight: 700; margin-bottom: 0.25rem;
+    }
+
+    .edu-school {
+      color: var(--accent2); font-size: 0.85rem; margin-bottom: 0.5rem;
+    }
+
+    .edu-period {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem; color: var(--muted);
+    }
+
+    .edu-badge {
+      display: inline-block;
+      margin-top: 0.75rem;
+      font-size: 0.72rem; font-weight: 600;
+      padding: 0.25rem 0.65rem;
+      border-radius: 999px;
+    }
+
+    .badge-gold {
+      background: rgba(245,158,11,0.1);
+      border: 1px solid rgba(245,158,11,0.3);
+      color: var(--accent3);
+    }
+
+    .badge-info {
+      background: rgba(6,182,212,0.1);
+      border: 1px solid rgba(6,182,212,0.3);
+      color: var(--accent2);
+    }
+
+    /* ── CERTIFICATIONS ── */
+    .certs-inline {
+      display: flex; flex-wrap: wrap; gap: 0.5rem;
+      margin-top: 1.5rem;
+    }
+
+    .cert-mini {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      padding: 0.25rem 0.6rem;
+      border-radius: 4px;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      transition: all 0.2s;
+    }
+
+    .cert-mini:hover {
+      border-color: var(--accent2);
+      color: var(--accent2);
+    }
+
+    /* ── CONTACT ── */
+    #contact { background: var(--bg); }
+
+    .contact-content {
+      margin-top: 3rem;
+      text-align: center;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    /* NEW: Portrait in Contact */
+    .contact-portrait {
+      width: 130px;
+      height: 130px;
+      border-radius: 50%;
+      object-fit: cover;
+      object-position: center top;
+      border: 3px solid var(--accent);
+      box-shadow: 0 0 32px rgba(124,58,237,0.35);
+      margin-bottom: 1.75rem;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .contact-portrait:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 42px rgba(124,58,237,0.55);
+    }
+
+    .contact-primary {
+      margin-bottom: 2rem;
+    }
+
+    .contact-primary a {
+      display: inline-flex; align-items: center; gap: 0.75rem;
+      padding: 1rem 2.5rem;
+      background: linear-gradient(135deg, var(--accent), #6d28d9);
+      color: #fff;
+      text-decoration: none;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: 600;
+      transition: all 0.2s;
+      box-shadow: 0 0 24px rgba(124,58,237,0.3);
+    }
+
+    .contact-primary a:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0 36px rgba(124,58,237,0.5);
+    }
+
+    .contact-secondary {
+      display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;
+      margin-top: 1.5rem;
+    }
+
+    .contact-icon {
+      display: flex; align-items: center; justify-content: center;
+      width: 44px; height: 44px;
+      border-radius: 10px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      text-decoration: none;
+      color: var(--muted);
+      font-size: 1.1rem;
+      transition: all 0.2s;
+    }
+
+    .contact-icon:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      transform: translateY(-2px);
+    }
+
+    .contact-note {
+      margin-top: 1.5rem;
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--bg2);
+      border-top: 1px solid var(--border);
+      padding: 2rem;
+      text-align: center;
+    }
+
+    .footer-text { color: var(--muted); font-size: 0.85rem; }
+    .footer-text span { color: var(--accent); }
+
+    /* ── SCROLL REVEAL ── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 768px) {
+      .nav-links { display: none; }
+      .nav-links.open {
+        display: flex; flex-direction: column;
+        position: fixed; top: 64px; left: 0; right: 0;
+        background: var(--bg2);
+        border-bottom: 1px solid var(--border);
+        padding: 1.5rem 2rem;
+        gap: 1.25rem;
+      }
+      .hamburger { display: flex; }
+
+      .project-card.featured { grid-column: auto; }
+      .project-card.featured .project-image { height: 220px; }
+      .project-image { height: 170px; }
+      .hero-stats { gap: 1.5rem; }
+      .contact-portrait { width: 110px; height: 110px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══ NAV ══ -->
+<nav>
+  <div class="nav-logo">jiya<span>.dev</span></div>
+  <ul class="nav-links" id="navLinks">
+    <li><a href="#about">About</a></li>
+    <li><a href="#projects">Projects</a></li>
+    <li><a href="#experience">Experience</a></li>
+    <li><a href="#education">Education</a></li>
+    <li><a href="#contact" class="nav-cta">Contact</a></li>
+  </ul>
+  <div class="hamburger" id="hamburger" onclick="toggleMenu()">
+    <span></span><span></span><span></span>
+  </div>
+</nav>
+
+<!-- ══ HERO ══ -->
+<section class="hero" id="about">
+  <div class="hero-content">
+    <div class="hero-badge">
+      <div class="status-dot"></div>
+      Available for AI/ML engineering roles
+    </div>
+
+    <h1>
+      Hi, I'm <span class="gradient">Jiya Yadav</span>
+    </h1>
+
+    <p class="hero-role">&lt; AI/ML Engineer /&gt;</p>
+
+    <p class="hero-summary">
+      I build end-to-end production ML systems.
+      Fine-tuned transformer models achieving <strong style="color:var(--text)">0.89 macro F1</strong>,
+      built multi-agent AI platforms with async orchestration, and established CI/CD pipelines with
+      <strong style="color:var(--text)">74% test coverage</strong>.
+      MSc IT (AI/ML) from Leeds Beckett University.
+    </p>
+
+    <div class="hero-btns">
+      <a href="https://huggingface.co/spaces/YDVJIYA/mental-health-ai-platform"
+         target="_blank" class="btn btn-primary">
+        <i class="fas fa-rocket"></i> View Live Demo — Featured Project
+      </a>
+    </div>
+
+    <div class="hero-secondary">
+      <a href="https://github.com/JIYA-YDV" target="_blank" class="btn btn-outline btn-sm">
+        <i class="fab fa-github"></i> GitHub
+      </a>
+      <a href="#contact" class="btn btn-outline btn-sm">
+        <i class="fas fa-envelope"></i> Contact
+      </a>
+      <a href="./Jiya_Yadav_Resume.pdf" target="_blank" class="btn btn-outline btn-sm">
+        <i class="fas fa-file-alt"></i> Resume
+      </a>
+    </div>
+
+    <div class="hero-stats">
+      <div class="stat">
+        <div class="stat-num">0.89</div>
+        <div class="stat-label">Macro F1 Score</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">74%</div>
+        <div class="stat-label">Test Coverage</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">40%</div>
+        <div class="stat-label">Latency Reduced</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">4+</div>
+        <div class="stat-label">Projects Shipped</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ PROJECTS ══ -->
+<section id="projects">
+  <div class="container">
+    <div class="reveal">
+      <p class="section-label">// portfolio</p>
+      <h2 class="section-title">Featured <span>Projects</span></h2>
+      <p class="section-desc">Production-grade systems built with real-world constraints, full test coverage, and live deployments.</p>
+    </div>
+
+    <div class="projects-grid">
+
+      <!-- FEATURED: Mental Health AI -->
+      <div class="project-card featured reveal">
+        <img src="assets/images/projects/project-mental-health-demo.png"
+             alt="Mental Health AI Platform live demo — emotion classification with 0.89 macro F1"
+             class="project-image">
+        <div class="project-featured-badge">
+          <i class="fas fa-star"></i> Featured Project
+        </div>
+        <h3 class="project-title">🧠 Mental Health Agentic AI Platform</h3>
+        <p class="project-desc">
+          Production multi-agent NLP platform for emotion classification and crisis detection.
+          Features async orchestration, retrieval-augmented generation (RAG), and full MLOps tooling.
+          Fine-tuned DistilRoBERTa on 16K labeled emotion samples deployed to Hugging Face Spaces.
+        </p>
+        <ul class="project-highlights">
+          <li>Fine-tuned DistilRoBERTa — macro F1 <strong>0.87 → 0.89</strong>, <strong>96% recall</strong> on crisis signals</li>
+          <li>Async multi-agent orchestration (asyncio.gather) — <strong>40% latency reduction</strong></li>
+          <li>Production test suite: <strong>69 tests, 74% coverage</strong>, sub-8s CI feedback via GitHub Actions</li>
+          <li>Deployed on HF Spaces 16GB free tier with UptimeRobot monitoring &amp; safety-override system</li>
+        </ul>
+        <div class="project-stack">
+          <span class="stack-tag">PyTorch</span>
+          <span class="stack-tag">Transformers</span>
+          <span class="stack-tag">FastAPI</span>
+          <span class="stack-tag">Streamlit</span>
+          <span class="stack-tag">ChromaDB</span>
+          <span class="stack-tag">pytest</span>
+          <span class="stack-tag">GitHub Actions</span>
+        </div>
+        <div class="project-links">
+          <a href="https://huggingface.co/spaces/YDVJIYA/mental-health-ai-platform"
+             target="_blank" class="project-link primary">
+            <i class="fas fa-rocket"></i> Live Demo
+          </a>
+          <a href="https://github.com/JIYA-YDV/Mental-Health-Agentic-AI-Platform"
+             target="_blank" class="project-link secondary">
+            <i class="fab fa-github"></i> Source Code
+          </a>
+          <a href="https://huggingface.co/YDVJIYA/distilroberta-base-finetuned-emotion"
+             target="_blank" class="project-link secondary">
+            <i class="fas fa-cube"></i> Model
+          </a>
+        </div>
+      </div>
+
+      <!-- PROJECT 2: Fair & Explainable ML -->
+      <div class="project-card reveal">
+        <img src="assets/images/projects/msc-dissertation.png"
+             alt="Fair & Explainable ML dissertation methodology poster"
+             class="project-image">
+        <h3 class="project-title">⚖️ Fair &amp; Explainable ML — Mental Health</h3>
+        <p class="project-desc">
+          MSc Dissertation. Interpretable ML pipeline predicting mental health treatment outcomes on
+          4,600 OSMI survey samples. Four-method explainability stack with algorithmic fairness analysis.
+        </p>
+        <ul class="project-highlights">
+          <li>XGBoost + EBM on 8-wave longitudinal dataset (2014–2022)</li>
+          <li>SHAP, LIME, NAM, EBM attribution consistency comparison</li>
+          <li>Fairlearn analysis across <strong>diverse demographic subgroups</strong></li>
+          <li>Rigorous data-leakage testing &amp; temporal train/test splits</li>
+        </ul>
+        <div class="project-stack">
+          <span class="stack-tag">Python</span>
+          <span class="stack-tag">XGBoost</span>
+          <span class="stack-tag">SHAP</span>
+          <span class="stack-tag">LIME</span>
+          <span class="stack-tag">Fairlearn</span>
+          <span class="stack-tag">EBM</span>
+          <span class="stack-tag">NAM</span>
+        </div>
+        <div class="project-links">
+          <span class="project-link secondary" style="cursor:default">
+            <i class="fas fa-graduation-cap"></i> MSc Dissertation
+          </span>
+        </div>
+        <p class="project-note">
+          📄 Full paper available on request post-publication.
+        </p>
+      </div>
+
+      <!-- PROJECT 3: E-Commerce -->
+      <div class="project-card reveal">
+        <img src="assets/images/projects/e-commerce-clv-executive_summary.png"
+             alt="E-Commerce customer lifetime value RFM segmentation dashboard"
+             class="project-image">
+        <h3 class="project-title">🛒 E-Commerce Customer Lifetime Value</h3>
+        <p class="project-desc">
+          End-to-end analytics on 393K+ transactions from a UK retailer (£7.2M revenue, 4.3K customers,
+          37 countries). RFM segmentation, cohort retention, and market basket analysis.
+        </p>
+        <ul class="project-highlights">
+          <li>RFM segmentation (6 tiers): <strong>26% customers → 62% revenue</strong></li>
+          <li>FP-Growth market basket analysis for cross-sell opportunities</li>
+          <li>Raw data → PostgreSQL warehouse → Power BI dashboards</li>
+        </ul>
+        <div class="project-stack">
+          <span class="stack-tag">Python</span>
+          <span class="stack-tag">Pandas</span>
+          <span class="stack-tag">PostgreSQL</span>
+          <span class="stack-tag">MLxtend</span>
+          <span class="stack-tag">Power BI</span>
+          <span class="stack-tag">DAX</span>
+        </div>
+        <div class="project-links">
+          <a href="https://github.com/JIYA-YDV/E-Commerce-Customer-Lifetime-Value-Optimization"
+             target="_blank" class="project-link secondary">
+            <i class="fab fa-github"></i> GitHub
+          </a>
+        </div>
+      </div>
+
+      <!-- PROJECT 4: ETL Pipeline -->
+      <div class="project-card reveal">
+        <img src="assets/images/projects/ETL-pipeline.png"
+             alt="Automated ETL pipeline Airflow DAG graph"
+             class="project-image">
+        <h3 class="project-title">🔄 Automated ETL Pipeline — Airflow &amp; PostgreSQL</h3>
+        <p class="project-desc">
+          Production ETL ingesting hourly weather data for 5 global cities via OpenWeatherMap API into
+          PostgreSQL. Orchestrated with Apache Airflow with comprehensive data-quality checks.
+        </p>
+        <ul class="project-highlights">
+          <li><strong>25 automated data-quality checks</strong> per pipeline run</li>
+          <li>27 pytest unit tests (100% passing)</li>
+          <li>Deployed on WSL2 + Ubuntu 22.04</li>
+        </ul>
+        <div class="project-stack">
+          <span class="stack-tag">Python 3.10</span>
+          <span class="stack-tag">Apache Airflow 2.8</span>
+          <span class="stack-tag">PostgreSQL</span>
+          <span class="stack-tag">pytest</span>
+          <span class="stack-tag">WSL2</span>
+        </div>
+        <div class="project-links">
+          <a href="https://github.com/JIYA-YDV/automated-etl-pipeline-airflow-postgresql"
+             target="_blank" class="project-link secondary">
+            <i class="fab fa-github"></i> GitHub
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ══ EXPERIENCE ══ -->
+<section id="experience">
+  <div class="container">
+    <div class="reveal">
+      <p class="section-label">// career</p>
+      <h2 class="section-title">Work <span>Experience</span></h2>
+    </div>
+
+    <div class="timeline">
+
+      <div class="timeline-item reveal">
+        <div class="timeline-dot"></div>
+        <div class="timeline-card">
+          <div class="timeline-header">
+            <div class="timeline-title">AI Engineering Intern</div>
+            <div class="timeline-period">Jul 2026 – Present</div>
+          </div>
+          <div class="timeline-company">FlyRank</div>
+          <div class="timeline-desc">
+            <ul>
+              <li>Building AI fluency workflows and integrating LLMs into production task pipelines</li>
+              <li>Developing prompt engineering frameworks and AI-assisted documentation systems</li>
+              <li>Contributing to internal AI tooling and workflow automation</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="timeline-item reveal">
+        <div class="timeline-dot" style="background:var(--accent2)"></div>
+        <div class="timeline-card">
+          <div class="timeline-header">
+            <div class="timeline-title">Data &amp; Research Analyst</div>
+            <div class="timeline-period">May 2022 – May 2023</div>
+          </div>
+          <div class="timeline-company">GCG International LLC, Kathmandu</div>
+          <div class="timeline-desc">
+            <ul>
+              <li>Built quantitative KPI dashboards tracking campaign performance across channels</li>
+              <li>Conducted consumer behavior analysis on structured datasets to inform business strategy</li>
+              <li>Automated weekly reporting workflows, reducing manual data processing time</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ══ EDUCATION ══ -->
+<section id="education">
+  <div class="container">
+    <div class="reveal">
+      <p class="section-label">// background</p>
+      <h2 class="section-title">Education</h2>
+    </div>
+
+    <div class="edu-grid">
+
+      <div class="edu-card reveal">
+        <div class="edu-degree">MSc Information Technology (AI/ML)</div>
+        <div class="edu-school">Leeds Beckett University via The British College, Kathmandu</div>
+        <div class="edu-period">Completed — Results expected Aug 2026</div>
+        <span class="edu-badge badge-info">AI/ML Specialisation</span>
+      </div>
+
+      <div class="edu-card reveal">
+        <div class="edu-degree">BSc (Hons) Computing</div>
+        <div class="edu-school">Leeds Beckett University via The British College, Kathmandu</div>
+        <div class="edu-period">2021 – 2024</div>
+        <span class="edu-badge badge-gold">🏆 First Class Honours</span>
+      </div>
+
+    </div>
+
+    <div style="margin-top:2rem" class="reveal">
+      <p style="font-size:0.8rem; color:var(--muted); margin-bottom:0.75rem;">Certifications</p>
+      <div class="certs-inline">
+        <span class="cert-mini">Anthropic — AI Fluency: Framework & Foundations</span>
+        <span class="cert-mini">Anthropic — Claude Code 101</span>
+        <span class="cert-mini">Hugging Face — Fundamentals of Agents</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ CONTACT (Portrait added) ══ -->
+<section id="contact">
+  <div class="container">
+    <div class="reveal">
+      <p class="section-label">// get in touch</p>
+      <h2 class="section-title">Let's <span>Connect</span></h2>
+      <p class="section-desc">Open to AI/ML engineering roles. Available for remote and relocation opportunities.</p>
+    </div>
+
+    <div class="contact-content reveal">
+
+      <!-- NEW: Portrait -->
+      <img src="assets/images/portrait/jiya-portrait.jpg"
+           alt="Jiya Yadav — AI/ML Engineer"
+           class="contact-portrait">
+
+      <div class="contact-primary">
+        <a href="mailto:jiyayadav102@gmail.com">
+          <i class="fas fa-envelope"></i> jiyayadav102@gmail.com
+        </a>
+      </div>
+
+      <div class="contact-secondary">
+        <a href="https://github.com/JIYA-YDV" target="_blank" class="contact-icon" title="GitHub">
+          <i class="fab fa-github"></i>
+        </a>
+        <a href="https://www.linkedin.com/in/jiyayadav" target="_blank" class="contact-icon" title="LinkedIn">
+          <i class="fab fa-linkedin"></i>
+        </a>
+        <a href="https://huggingface.co/YDVJIYA" target="_blank" class="contact-icon" title="Hugging Face">
+          <i class="fas fa-cube"></i>
+        </a>
+      </div>
+
+      <p class="contact-note">
+        Based in Kathmandu, Nepal · Open to remote &amp; relocation worldwide
+      </p>
+
+    </div>
+  </div>
+</section>
+
+<!-- ══ FOOTER ══ -->
+<footer>
+  <p class="footer-text">
+    Built by <span>Jiya Yadav</span> &nbsp;·&nbsp;
+    AI/ML Engineer &nbsp;·&nbsp;
+    Kathmandu, Nepal 🇳🇵
+  </p>
+</footer>
+
+<!-- ══ JS ══ -->
+<script>
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+        observer.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.12 });
+
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+  function toggleMenu() {
+    document.getElementById('navLinks').classList.toggle('open');
+  }
+
+  const sections = document.querySelectorAll('section[id]');
+  const navLinks = document.querySelectorAll('.nav-links a');
+
+  window.addEventListener('scroll', () => {
+    let current = '';
+    sections.forEach(s => {
+      if (window.scrollY >= s.offsetTop - 100) current = s.id;
+    });
+    navLinks.forEach(a => {
+      a.style.color = a.getAttribute('href') === '#' + current
+        ? 'var(--text)' : '';
+    });
+  });
+</script>
+
+</body>
+</html>
