@@ -1,12 +1,10 @@
 <div align="center">
 
-<img src="./assets/images/brand/jy-logo.png" alt="JY Logo" width="120"/>
+<img src="assets/images/brand/jiya-logo.png" alt="JY Logo" width="120"/>
 
 # Jiya Yadav — Identity Kit & Curated Image Set
 
-### `Decide once. Apply everywhere.`
-
-**Week 2 + Week 3 deliverables** · FlyRank AI Fluency · Foundations Phase
+· FlyRank AI Fluency · 
 
 [![Portfolio](https://img.shields.io/badge/Portfolio-jiya.dev-A855F7?style=for-the-badge&logo=github&logoColor=white)](https://jiya-ydv.github.io/jiya-yadav.github.io/)
 [![Identity Kit](https://img.shields.io/badge/Identity_Kit-Live-06B6D4?style=for-the-badge&logo=netlify&logoColor=white)](https://jiya-yadav.netlify.app/)
@@ -27,32 +25,32 @@ This repo holds two connected FlyRank deliverables:
 
 Both were built so that any new page, case study, or share card I produce next stays visually consistent without re-deciding the small things.
 
----
-
 ## 🎨 The Design System
 
 <table>
 <tr>
 <td width="50%">
 
+---
 ### Typography
 | Role | Font |
 |------|------|
 | Headings | **Inter** (700 / 800) |
 | Body | **Inter** (400) |
 | Code / labels | **JetBrains Mono** (500) |
-
+---
 </td>
 <td width="50%">
 
 ### Palette
+---
 | Role | Hex |
 |------|-----|
 | 🖤 Background | `#0A0A0F` |
 | 🤍 Text | `#E5E7EB` |
 | 💜 Primary | `#A855F7` |
 | 🩵 Accent | `#06B6D4` |
-
+---
 </td>
 </tr>
 </table>
@@ -88,10 +86,12 @@ kill-your-darlings-curate-your-images/
         │
         └── rejected
         └── REJECTED-mental-health-mockup.png
-
-
+```
 ##  The Curated Image Set (Week 3) 🖼️
-
+<table>
+<tr>
+<td width="50%">
+    
 | Slot | Image | Source |
 |------|:---:|--------|
 | Nav logo + favicon | 🟣 | Self-designed |
@@ -104,9 +104,11 @@ kill-your-darlings-curate-your-images/
 | Section dividers | 🎨 | CSS radial gradients — no image |
 | Rejected mockup | 🚫 | AI-generated, deliberately not shipped |
 
-**All generated/designed images share one style** — dark background, purple→cyan gradient, Inter + JetBrains Mono. The set is intentional, not scavenged.
+</td>
+</tr>
+</table>
 
----
+**All generated/designed images share one style** — dark background, purple→cyan gradient, Inter + JetBrains Mono. The set is intentional, not scavenged.
 
 ##  The Rejection Note 🚫
 
@@ -121,7 +123,6 @@ kill-your-darlings-curate-your-images/
 
 The rejected image is preserved in `/assets/images/rejected/` as literal proof of the choice.
 
-```
 <div align="center">
 Built for FlyRank AI Fluency  · JIYA YADAV
-</div> ```
+</div>
