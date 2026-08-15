@@ -1,17 +1,8 @@
 # app/main.py
-# FastAPI application entry point.
-# Registers all routers and configures the app metadata that
-# FastAPI uses to auto-generate the Swagger UI at /docs.
-
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-
-# Routers (we will fill these out in stages 1–4)
 from app.routes import auth, protected, public
 
-# ── App metadata ──────────────────────────────────────────────────────────────
-# FastAPI uses this to build the Swagger /docs page automatically.
-# The openapi_tags list creates sections in the Swagger UI sidebar.
 app = FastAPI(
     title="FlyRank Auth API",
     description=(
@@ -24,16 +15,24 @@ app = FastAPI(
         "5. All 🔒 routes will now include your token automatically"
     ),
     version="1.0.0",
+    docs_url="/docs",
+    redoc_url="/redoc",
     openapi_tags=[
-        {"name": "Public",         "description": "Open endpoints — no token needed"},
-        {"name": "Authentication", "description": "Sign up, log in, log out"},
-        {"name": "Protected",      "description": "🔒 Requires a valid Bearer token"},
+        {
+            "name": "Public",
+            "description": "Open endpoints — no token needed.",
+        },
+        {
+            "name": "Authentication",
+            "description": "Sign up, log in, log out. Login returns the access_token.",
+        },
+        {
+            "name": "Protected",
+            "description": "🔒 Requires Bearer token. Click Authorize above.",
+        },
     ],
 )
 
-# ── CORS ──────────────────────────────────────────────────────────────────────
-# Allows browsers to call the API from any origin during development.
-# In production you would restrict this to your frontend domain.
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -41,16 +40,16 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# ── Routers ───────────────────────────────────────────────────────────────────
 app.include_router(public.router,    prefix="/public",    tags=["Public"])
 app.include_router(auth.router,      prefix="/auth",      tags=["Authentication"])
 app.include_router(protected.router, prefix="/protected", tags=["Protected"])
 
-# ── Root health check ─────────────────────────────────────────────────────────
-@app.get("/", tags=["Public"])
+
+@app.get("/", tags=["Public"], summary="Health check")
 def root():
+    """API health check — confirms the server is running."""
     return {
-        "message": "FlyRank Auth API is running 🚀",
-        "docs": "/docs",
+        "message": "FlyRank Auth API is running",
+        "docs":    "http://localhost:8000/docs",
         "version": "1.0.0",
     }
