@@ -10,6 +10,9 @@ import logging
 from datetime import datetime, timezone
 from pathlib import Path
 from urllib.parse import urljoin, urlparse
+from pydantic import BaseModel, field_validator, HttpUrl, model_validator
+from typing import Optional
+import re
 
 import requests
 from bs4 import BeautifulSoup
@@ -187,20 +190,46 @@ def extract_raw_record(
     }
 
 
-def scrape_book(url: str, source_page: str) -> dict | None:
-    """
-    Fetch (or cache) one book page and return its raw record.
-    Returns None on any fetch failure.
-    """
-    try:
-        html, _ = fetch(url)
-    except RuntimeError as exc:
-        log.warning("FAILED     %s  →  %s", url, exc)
-        return None
+# ── Stage 5: retry, skip failures, run report ─────────────────────────────────
 
-    fetched_at = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
-    return extract_raw_record(html, url, source_page, fetched_at)
+def scrape_book(
+    url: str,
+    source_page: str,
+    extra_urls: list[str] | None = None,
+) -> dict | None:
+    """
+    Fetch one book page with one retry on 5xx / timeout.
+    Returns None and logs on permanent failure.
+    Does NOT retry 404 (page gone) or 403 (access denied).
+    """
+    for attempt in (1, 2):
+        try:
+            html, _ = fetch(url)
+            fetched_at = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+            return extract_raw_record(html, url, source_page, fetched_at)
 
+        except requests.exceptions.Timeout:
+            log.warning("TIMEOUT    %s  (attempt %d/2)", url, attempt)
+            if attempt == 1:
+                time.sleep(2)       # brief wait before retry
+
+        except RuntimeError as exc:
+            msg = str(exc)
+            # 4xx: do not retry
+            if "404" in msg or "403" in msg:
+                log.warning("PERMANENT  %s  →  %s", url, msg)
+                return None
+            # 5xx or other: retry once
+            log.warning("SERVER ERR %s  →  %s  (attempt %d/2)", url, msg, attempt)
+            if attempt == 1:
+                time.sleep(2)
+
+        except Exception as exc:
+            log.warning("FAILED     %s  →  %s", url, exc)
+            return None
+
+    log.error("GIVING UP  %s  after 2 attempts", url)
+    return None
 
 def scrape_all_books(
     book_urls: list[str],
@@ -226,12 +255,162 @@ def scrape_all_books(
     )
     return raw_records, failed_urls
 
+# ── Stage 4: schema, normalization, validation ────────────────────────────────
+
+class BookRecord(BaseModel):
+    """
+    The single source of truth for a validated book record.
+    Pydantic raises ValidationError if any required field is wrong.
+    """
+    title:             str
+    product_url:       str          # canonical identity
+    price_text:        str
+    price_gbp:         float        # derived during normalization
+    availability_text: str
+    rating_text:       str
+    description:       Optional[str] = None
+    source_page:       str
+    fetched_at:        str
+
+    @field_validator("product_url", "source_page")
+    @classmethod
+    def must_be_https(cls, v: str) -> str:
+        if not v.startswith("https://"):
+            raise ValueError(f"URL must start with https://  got: {v!r}")
+        return v
+
+    @field_validator("price_gbp")
+    @classmethod
+    def must_be_positive(cls, v: float) -> float:
+        if v <= 0:
+            raise ValueError(f"price_gbp must be positive, got {v}")
+        return v
+
+
+def parse_price(price_text: str) -> float:
+    """
+    '£51.77'  →  51.77
+    Strips any non-digit, non-dot character, then casts to float.
+    """
+    digits = re.sub(r"[^\d.]", "", price_text)
+    return float(digits)
+
+
+def normalize(raw: dict) -> dict:
+    """Add price_gbp to a raw record (all other fields pass through)."""
+    price_gbp = parse_price(raw["price_text"])
+    return {**raw, "price_gbp": price_gbp}
+
+
+def validate_records(
+    raw_records: list[dict],
+) -> tuple[list[BookRecord], list[dict]]:
+    """
+    Normalize then validate every record.
+    Returns (good_records, error_records).
+    error_records include the raw dict plus an 'error' key.
+    """
+    good: list[BookRecord] = []
+    errors: list[dict]     = []
+
+    seen_urls: set[str] = set()     # idempotency: dedup by canonical URL
+
+    for raw in raw_records:
+        url = raw.get("product_url", "")
+        if url in seen_urls:
+            log.debug("DUPLICATE  %s — skipped", url)
+            continue
+        seen_urls.add(url)
+
+        try:
+            normalized = normalize(raw)
+            record     = BookRecord(**normalized)
+            good.append(record)
+        except Exception as exc:
+            errors.append({**raw, "error": str(exc)})
+            log.warning("INVALID    %s  →  %s", url, exc)
+
+    log.info("valid=%d  invalid=%d", len(good), len(errors))
+    return good, errors
+
+
+def save_json(data: list, path: Path) -> None:
+    """Write a list of dicts (or Pydantic models) to JSON."""
+    payload = [
+        r.model_dump() if isinstance(r, BookRecord) else r
+        for r in data
+    ]
+    path.write_text(json.dumps(payload, indent=2, ensure_ascii=False), encoding="utf-8")
+    log.info("SAVED      %s  (%d records)", path, len(payload))
+    
 if __name__ == "__main__":
     CACHE_DIR.mkdir(exist_ok=True)
     OUTPUT_DIR.mkdir(exist_ok=True)
 
-    urls, n_pages, src_map = discover_book_urls()
-    raw_records, failed = scrape_all_books(urls, src_map)
+    run_start = datetime.now(timezone.utc)
 
-    print(f"\ndetail_pages={len(raw_records)}")
-    print(json.dumps(raw_records[0], indent=2))
+    # ── Discover ──────────────────────────────────────────────────────────────
+    urls, n_pages, src_map = discover_book_urls()
+
+    # ── Stage 5: inject one bad URL to prove graceful failure ─────────────────
+    FAKE_URL = "https://books.toscrape.com/catalogue/does-not-exist_9999/index.html"
+    if FAKE_URL not in urls:
+        urls.append(FAKE_URL)
+        src_map[FAKE_URL] = "injected-for-testing"
+
+    # ── Scrape detail pages ───────────────────────────────────────────────────
+    raw_records: list[dict] = []
+    failed_urls: list[str]  = []
+    cache_hits  = 0
+
+    for url in urls:
+        # count cache hits
+        cache_file = _cache_key(url)
+        was_cached = cache_file.exists()
+
+        record = scrape_book(url, src_map.get(url, "unknown"))
+
+        if was_cached:
+            cache_hits += 1
+
+        if record is None:
+            failed_urls.append(url)
+        else:
+            raw_records.append(record)
+
+    log.info("detail_pages=%d  failed=%d", len(raw_records), len(failed_urls))
+
+    # ── Validate & store ──────────────────────────────────────────────────────
+    good, errors = validate_records(raw_records)
+    save_json(good,   OUTPUT_DIR / "books.json")
+    save_json(errors, OUTPUT_DIR / "errors.json")
+
+    # ── Run report ────────────────────────────────────────────────────────────
+    run_end = datetime.now(timezone.utc)
+    run_report = {
+        "started_at":           run_start.strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "finished_at":          run_end.strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "duration_seconds":     round((run_end - run_start).total_seconds(), 1),
+        "catalogue_pages":      n_pages,
+        "discovered_urls":      len(urls),
+        "detail_pages_fetched": len(raw_records) + len(failed_urls),
+        "cache_hits":           cache_hits,
+        "valid_records":        len(good),
+        "invalid_records":      len(errors),
+        "failed_pages":         len(failed_urls),
+        "failed_urls":          failed_urls,
+    }
+
+    report_path = OUTPUT_DIR / "run-report.json"
+    report_path.write_text(
+        json.dumps(run_report, indent=2), encoding="utf-8"
+    )
+    log.info("REPORT     %s", report_path)
+
+    # ── Summary ───────────────────────────────────────────────────────────────
+    print("\n── Run complete ─────────────────────────────────")
+    print(f"  Catalogue pages : {run_report['catalogue_pages']}")
+    print(f"  Valid records   : {run_report['valid_records']}")
+    print(f"  Failed pages    : {run_report['failed_pages']}")
+    print(f"  Duration        : {run_report['duration_seconds']}s")
+    print("─────────────────────────────────────────────────\n")
