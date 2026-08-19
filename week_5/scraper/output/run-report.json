@@ -1,0 +1,15 @@
+{
+  "started_at": "2026-08-19T19:25:25Z",
+  "finished_at": "2026-08-19T19:26:28Z",
+  "duration_seconds": 63.3,
+  "catalogue_pages": 3,
+  "discovered_urls": 61,
+  "detail_pages_fetched": 61,
+  "cache_hits": 28,
+  "valid_records": 60,
+  "invalid_records": 0,
+  "failed_pages": 1,
+  "failed_urls": [
+    "https://books.toscrape.com/catalogue/does-not-exist_9999/index.html"
+  ]
+}
