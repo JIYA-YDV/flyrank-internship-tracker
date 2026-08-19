@@ -82,11 +82,61 @@ def fetch(url: str) -> tuple[str, bool]:
     return html, False
     
     
-    # ── Stage 1 smoke test (remove after checkpoint) ──────────────────────────────
+# ── Stage 2: catalogue crawler ────────────────────────────────────────────────
+
+def get_book_urls_from_page(html: str, page_url: str) -> list[str]:
+    """Extract absolute book-detail URLs from one catalogue page."""
+    soup = BeautifulSoup(html, "html.parser")
+    urls = []
+    for article in soup.select("article.product_pod"):
+        a_tag = article.select_one("h3 > a")
+        if a_tag and a_tag.get("href"):
+            absolute = urljoin(page_url, a_tag["href"])
+            urls.append(absolute)
+    return urls
+
+
+def get_next_page_url(html: str, current_url: str) -> str | None:
+    """Follow the catalogue's own 'next' link — never hardcode page numbers."""
+    soup = BeautifulSoup(html, "html.parser")
+    next_btn = soup.select_one("li.next > a")
+    if next_btn and next_btn.get("href"):
+        return urljoin(current_url, next_btn["href"])
+    return None
+
+
+def discover_book_urls() -> tuple[list[str], int]:
+    """
+    Crawl up to MAX_PAGES catalogue pages.
+    Returns (unique_book_urls, catalogue_page_count).
+    """
+    book_urls: list[str] = []
+    seen: set[str] = set()
+    current_url: str | None = START_URL
+    page_count = 0
+
+    while current_url and page_count < MAX_PAGES:
+        html, _ = fetch(current_url)
+        page_count += 1
+
+        for url in get_book_urls_from_page(html, current_url):
+            if url not in seen:
+                seen.add(url)
+                book_urls.append(url)
+
+        current_url = get_next_page_url(html, current_url)
+
+    log.info(
+        "catalogue_pages=%d  discovered=%d  unique_urls=%d",
+        page_count, len(book_urls), len(set(book_urls)),
+    )
+    return book_urls, page_count
+    
+    
 if __name__ == "__main__":
     CACHE_DIR.mkdir(exist_ok=True)
     OUTPUT_DIR.mkdir(exist_ok=True)
 
-    html, from_cache = fetch(START_URL)
-    source = "CACHE HIT" if from_cache else "FETCH"
-    print(f"\n{source}  |  size={len(html):,} bytes\n")
+    urls, n_pages = discover_book_urls()
+    print(f"\ncatalogue_pages={n_pages}  unique_urls={len(urls)}\n")
+    # Expected: catalogue_pages=3  unique_urls=60
