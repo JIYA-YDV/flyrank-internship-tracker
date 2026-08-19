@@ -105,33 +105,136 @@ def get_next_page_url(html: str, current_url: str) -> str | None:
     return None
 
 
-def discover_book_urls() -> tuple[list[str], int]:
+def discover_book_urls() -> tuple[list[str], int, dict[str, str]]:
     """
     Crawl up to MAX_PAGES catalogue pages.
-    Returns (unique_book_urls, catalogue_page_count).
+    Returns (unique_book_urls, catalogue_page_count, source_page_map).
+    source_page_map: {book_url -> catalogue_page_url}
     """
     book_urls: list[str] = []
     seen: set[str] = set()
+    source_page_map: dict[str, str] = {}
     current_url: str | None = START_URL
     page_count = 0
 
     while current_url and page_count < MAX_PAGES:
         html, _ = fetch(current_url)
         page_count += 1
+        this_page = current_url         # capture for closure
 
-        for url in get_book_urls_from_page(html, current_url):
+        for url in get_book_urls_from_page(html, this_page):
             if url not in seen:
                 seen.add(url)
                 book_urls.append(url)
+                source_page_map[url] = this_page
 
-        current_url = get_next_page_url(html, current_url)
+        current_url = get_next_page_url(html, this_page)
 
     log.info(
         "catalogue_pages=%d  discovered=%d  unique_urls=%d",
         page_count, len(book_urls), len(set(book_urls)),
     )
-    return book_urls, page_count
+    return book_urls, page_count, source_page_map
     
+    if __name__ == "__main__":
+    CACHE_DIR.mkdir(exist_ok=True)
+    OUTPUT_DIR.mkdir(exist_ok=True)
+
+    urls, n_pages, src_map = discover_book_urls()
+    raw_records, failed = scrape_all_books(urls, src_map)
+
+    print(f"\ndetail_pages={len(raw_records)}")
+    print(json.dumps(raw_records[0], indent=2))
+    
+# ── Stage 3: raw extraction ───────────────────────────────────────────────────
+
+def extract_raw_record(
+    html: str,
+    product_url: str,
+    source_page: str,
+    fetched_at: str,
+) -> dict:
+    """
+    Parse one book-detail page into a raw record.
+    All values are strings (or None); cleaning happens in Stage 4.
+    """
+    soup = BeautifulSoup(html, "html.parser")
+
+    # ── Title ─────────────────────────────────────────────────────────────────
+    title_tag = soup.select_one("div.product_main > h1")
+    title = title_tag.get_text(strip=True) if title_tag else None
+
+    # ── Price ─────────────────────────────────────────────────────────────────
+    price_tag = soup.select_one("div.product_main > p.price_color")
+    price_text = price_tag.get_text(strip=True) if price_tag else None
+
+    # ── Availability ──────────────────────────────────────────────────────────
+    avail_tag = soup.select_one("div.product_main > p.availability")
+    availability_text = avail_tag.get_text(strip=True) if avail_tag else None
+
+    # ── Star rating (word form, e.g. "Three") ────────────────────────────────
+    rating_tag = soup.select_one("div.product_main > p.star-rating")
+    rating_text = rating_tag["class"][1] if rating_tag else None   # second CSS class
+
+    # ── Description (optional — null when absent) ─────────────────────────────
+    desc_header = soup.find("div", id="product_description")
+    if desc_header:
+        desc_p = desc_header.find_next_sibling("p")
+        description = desc_p.get_text(strip=True) if desc_p else None
+    else:
+        description = None          # not invented — genuinely absent
+
+    return {
+        "title":             title,
+        "product_url":       product_url,
+        "price_text":        price_text,
+        "availability_text": availability_text,
+        "rating_text":       rating_text,
+        "description":       description,
+        "source_page":       source_page,
+        "fetched_at":        fetched_at,
+    }
+
+
+def scrape_book(url: str, source_page: str) -> dict | None:
+    """
+    Fetch (or cache) one book page and return its raw record.
+    Returns None on any fetch failure.
+    """
+    try:
+        html, _ = fetch(url)
+    except RuntimeError as exc:
+        log.warning("FAILED     %s  →  %s", url, exc)
+        return None
+
+    fetched_at = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    return extract_raw_record(html, url, source_page, fetched_at)
+
+
+def scrape_all_books(
+    book_urls: list[str],
+    source_page_map: dict[str, str],
+) -> tuple[list[dict], list[str]]:
+    """
+    Visit every book URL.
+    Returns (raw_records, failed_urls).
+    """
+    raw_records: list[dict] = []
+    failed_urls: list[str] = []
+
+    for url in book_urls:
+        record = scrape_book(url, source_page_map.get(url, "unknown"))
+        if record is None:
+            failed_urls.append(url)
+        else:
+            raw_records.append(record)
+
+    log.info(
+        "detail_pages=%d  failed=%d",
+        len(raw_records), len(failed_urls),
+    )
+    return raw_records, failed_urls
+
     
 if __name__ == "__main__":
     CACHE_DIR.mkdir(exist_ok=True)
