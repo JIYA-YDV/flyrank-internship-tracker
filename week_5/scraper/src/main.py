@@ -136,15 +136,6 @@ def discover_book_urls() -> tuple[list[str], int, dict[str, str]]:
     )
     return book_urls, page_count, source_page_map
     
-    if __name__ == "__main__":
-    CACHE_DIR.mkdir(exist_ok=True)
-    OUTPUT_DIR.mkdir(exist_ok=True)
-
-    urls, n_pages, src_map = discover_book_urls()
-    raw_records, failed = scrape_all_books(urls, src_map)
-
-    print(f"\ndetail_pages={len(raw_records)}")
-    print(json.dumps(raw_records[0], indent=2))
     
 # ── Stage 3: raw extraction ───────────────────────────────────────────────────
 
@@ -235,11 +226,12 @@ def scrape_all_books(
     )
     return raw_records, failed_urls
 
-    
 if __name__ == "__main__":
     CACHE_DIR.mkdir(exist_ok=True)
     OUTPUT_DIR.mkdir(exist_ok=True)
 
-    urls, n_pages = discover_book_urls()
-    print(f"\ncatalogue_pages={n_pages}  unique_urls={len(urls)}\n")
-    # Expected: catalogue_pages=3  unique_urls=60
+    urls, n_pages, src_map = discover_book_urls()
+    raw_records, failed = scrape_all_books(urls, src_map)
+
+    print(f"\ndetail_pages={len(raw_records)}")
+    print(json.dumps(raw_records[0], indent=2))
