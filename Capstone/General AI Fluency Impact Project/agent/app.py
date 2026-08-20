@@ -3,7 +3,18 @@ from groq import Groq
 from prompts import SYSTEM_PROMPT
 import os
 from dotenv import load_dotenv
+import chainlit as cl
 
+@cl.on_chat_start
+async def start():
+    await cl.Message(content="Hello! How can I help you today?").send()
+
+@cl.on_message
+async def main(message: cl.Message):
+    # Your logic here
+    response_message = f"You said: {message.content}"
+    await cl.Message(content=response_message).send()
+    
 # Optional import for HF Spaces GPU decorator
 try:
     import spaces
@@ -20,7 +31,7 @@ load_dotenv()
 
 client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
-MODEL = "llama-3.3-70b-versatile"
+MODEL = "groq/compound-mini"
 MAX_TOKENS = 1000
 TEMPERATURE = 0.7
 

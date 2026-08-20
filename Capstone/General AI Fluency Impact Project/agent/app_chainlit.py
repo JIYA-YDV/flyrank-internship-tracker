@@ -11,7 +11,7 @@ load_dotenv()
 client = AsyncGroq(api_key=os.getenv("GROQ_API_KEY"))
 
 # Model config — Llama 3.3 70B is excellent for empathetic conversation
-MODEL = "llama-3.3-70b-versatile"
+MODEL = "groq/compound-mini"
 MAX_TOKENS = 1000
 TEMPERATURE = 0.7
 
