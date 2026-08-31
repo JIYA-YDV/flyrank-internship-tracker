@@ -1,7 +1,7 @@
 """Load the versioned prompt file from disk."""
 from pathlib import Path
 
-PROMPT_VERSION = "extract-v1"
+PROMPT_VERSION = "extract-v2"
 _PROMPT_PATH = Path(__file__).parent.parent.parent / "prompts" / f"{PROMPT_VERSION}.md"
 
 

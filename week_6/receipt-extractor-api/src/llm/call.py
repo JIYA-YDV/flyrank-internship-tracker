@@ -11,7 +11,7 @@ from src.llm.retry import call_with_retry
 from src.llm.schema import ExtractOutput, Currency
 from decimal import Decimal
 from src.llm.sanitize import wrap_untrusted
-
+from src.llm import cache
 
 def _fallback_response() -> ExtractOutput:
     """Returned when LLM_ENABLED=false. Deterministic, always safe."""
@@ -58,7 +58,8 @@ def extract_with_llm(user_text: str) -> Tuple[ExtractOutput, int]:
     Returns fallback + repair_count=0 when LLM_ENABLED=false.
     """
     # Kill switch
-    if not _is_enabled():
+    cached = cache.get(PROMPT_VERSION, user_text)
+    if cached is not None:
         log_call(
             prompt_version=PROMPT_VERSION,
             model=get_model(),
@@ -66,9 +67,9 @@ def extract_with_llm(user_text: str) -> Tuple[ExtractOutput, int]:
             output_tokens=0,
             duration_ms=0,
             repair_count=0,
-            outcome="disabled",
+            outcome="cache_hit",
         )
-        return _fallback_response(), 0
+        return cached, 0
 
     system_prompt = load_system_prompt()
     start = time.perf_counter()
