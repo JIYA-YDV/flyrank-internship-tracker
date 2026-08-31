@@ -10,6 +10,7 @@ from src.llm.cost_log import log_call
 from src.llm.retry import call_with_retry
 from src.llm.schema import ExtractOutput, Currency
 from decimal import Decimal
+from src.llm.sanitize import wrap_untrusted
 
 
 def _fallback_response() -> ExtractOutput:
@@ -38,6 +39,8 @@ def _call_model_once(messages: list) -> tuple[str, int, int]:
             model=get_model(),
             messages=messages,
             temperature=0.1,
+            max_tokens=1000,  # <-- Prevents truncation on multi-item receipts
+            response_format={"type": "json_object"} if "gpt" in get_model().lower() or "deepseek" in get_model().lower() else None, # Optional: enforces valid JSON if using compatible models
         )
 
     response = call_with_retry(_do)
@@ -74,7 +77,7 @@ def extract_with_llm(user_text: str) -> Tuple[ExtractOutput, int]:
     # Attempt 1
     messages = [
         {"role": "system", "content": system_prompt},
-        {"role": "user", "content": user_text},
+        {"role": "user", "content": wrap_untrusted(user_text)},
     ]
     raw, in1, out1 = _call_model_once(messages)
     total_in += in1

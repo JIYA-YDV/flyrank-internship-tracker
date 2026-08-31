@@ -30,13 +30,17 @@ def check_case(expected: dict, actual: dict) -> tuple[bool, list[str]]:
             failures.append(f"merchant={actual.get('merchant')} expected {expected['merchant']}")
 
     if "total" in expected:
-        actual_total = actual.get("total")
-        if actual_total is None:
-            failures.append(f"total is None, expected {expected['total']}")
-        else:
-            if abs(float(actual_total) - float(expected["total"])) > 0.01:
-                failures.append(f"total={actual_total} expected {expected['total']}")
-
+            actual_total = actual.get("total")
+            expected_total = expected["total"]
+            if expected_total is None:
+                if actual_total is not None:
+                    failures.append(f"total={actual_total} expected None")
+            elif actual_total is None:
+                failures.append(f"total is None, expected {expected_total}")
+            else:
+                if abs(float(actual_total) - float(expected_total)) > 0.01:
+                    failures.append(f"total={actual_total} expected {expected_total}")
+                    
     if "currency" in expected:
         if actual.get("currency") != expected["currency"]:
             failures.append(f"currency={actual.get('currency')} expected {expected['currency']}")
